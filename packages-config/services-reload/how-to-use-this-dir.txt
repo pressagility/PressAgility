@@ -1,0 +1,5 @@
+##services-reload
+
+placing an empty file with the name of "yes" or "yes.txt" under nginx directory will reload nginx service on all the servers.
+
+placing an empty file with the name of "yes" or "yes.txt" under php-fpm directory will reload all installed php-fpm services on all the servers.

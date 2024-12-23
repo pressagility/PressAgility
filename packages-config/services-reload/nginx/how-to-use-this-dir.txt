@@ -1,0 +1,3 @@
+##services-reload/nginx
+
+Placing an empty file with the name of "yes" or "yes.txt" here will reload nginx service on all servers.

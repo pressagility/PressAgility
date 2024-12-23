@@ -1,0 +1,3 @@
+##job-queue Dir
+
+Placing an empty file with the name of "stop" or "stop.txt" will stop processing job queue (cron jobs) on all the servers.

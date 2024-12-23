@@ -1,0 +1,245 @@
+upstream wpscalepro {
+  least_conn;
+  include /mnt/network-share/network-data/load-balancer/*;
+}
+
+upstream wpscalepro_primary_server {
+  include /mnt/network-share/network-data/load-balancer/primary_server;
+}
+
+
+#apply rate limit
+limit_req_zone $binary_remote_addr zone=ip:24m rate=360r/m;
+
+
+
+
+server {
+
+  #access_log /dev/null;
+  access_log /var/log/nginx/access.log withhost;
+    
+  set $auto_load_balance_target "wpscalepro";
+  
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  server_name _;
+  
+  
+  
+  location ~ ^/wp-admin/update.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  location ~ ^/wp-admin/plugin-install.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  location ~ ^/wp-admin/theme-install.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  location ~ ^/wp-admin/plugins.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  location ~ ^/wp-admin/themes.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  location ~ ^/wp-admin/update-core.php {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro_primary_server;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  
+  
+  
+  location ~ ^/wp-admin/index.php$ {
+    limit_req zone=ip burst=500;
+    
+    access_by_lua_block {
+    
+      ngx.req.read_body();
+      local args = ngx.req.get_uri_args();
+      
+      if args["page"] == "wp-rollback" then
+          ngx.var.auto_load_balance_target = "wpscalepro_primary_server"
+      end
+
+    }
+    
+    proxy_pass http://$auto_load_balance_target;
+    include snippets/wpscalepro-proxy-pass.conf;
+  }
+  
+  
+  
+  
+  
+  
+  location ~ ^/wp-admin/admin-ajax.php$ {
+    limit_req zone=ip burst=500;
+    
+    access_by_lua_block {
+    
+      ngx.req.read_body();
+
+      local args = {};
+      
+      local body = ngx.req.get_body_data()
+      if body then
+        args = ngx.decode_args(body)
+      else
+        args = ngx.req.get_uri_args()
+      end
+      
+      if args and (args["action"] == "delete-plugin" or args["action"] == "install-plugin" or args["action"] == "update-plugin" or args["action"] == "delete-theme" or args["action"] == "install-theme" or args["action"] == "update-theme") then
+          ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
+      end
+
+    }
+    
+    proxy_pass http://$auto_load_balance_target;
+    include snippets/wpscalepro-proxy-pass.conf;
+  }
+  
+  
+  location / {
+    limit_req zone=ip burst=500;
+    
+    proxy_pass  http://wpscalepro;
+    include     snippets/wpscalepro-proxy-pass.conf;
+  }
+  
+  #block reques to /xmlrpc.php 
+  location = /xmlrpc.php {
+    deny all;
+    access_log off;
+  }
+ 
+  #do not log requests for the following urls:
+  location = /favicon.ico {
+    access_log off;
+  }
+  
+}
+
+
+
+
+
+
+# Default server configuration
+#
+server {
+
+  access_log /dev/null;
+  
+  listen 8080 default_server;
+  listen [::]:8080 default_server;
+  server_name _;
+  
+  # Custom header with server IP address
+  add_header X-Wpsp-Origin-Server $server_addr always;
+  
+  # Match only "/wp-admin" without a trailing slash
+  location = /wp-admin {
+      return 301 https://$host/wp-admin/;
+  }
+
+	root /var/www/WPScalePro/wp/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+
+
+	
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+	}
+	location /wp-content/plugins/ {
+		alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	}
+	
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		include snippets/default-php-version.conf;
+	}
+}
+
+
+
+
+#redirect www to www.domain.com
+server {
+  access_log /dev/null;
+  listen 8080;
+  listen [::]:8080;
+
+  # Match any domain starting with "www."
+  server_name ~^www\.(?<domain>.+)$;
+
+  # Redirect to the non-www version of the domain
+  return 301 https://$domain$request_uri;
+}
+
+
+
+
+
+# Generic CDN Server Config
+#
+server {
+  access_log /dev/null;
+	listen 8080;
+	listen [::]:8080;
+  server_name ~^cfcdnsite(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+
+	root /var/www/WPScalePro/wp/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	
+	
+	#ADD CROS HEADERS HERE
+	add_header "Access-Control-Allow-Origin" "*" always;
+
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+	}
+	location /wp-content/plugins/ {
+		alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	}
+	
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		include snippets/default-php-version.conf;
+	}
+	
+	
+}

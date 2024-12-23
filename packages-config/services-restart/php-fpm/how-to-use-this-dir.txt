@@ -1,0 +1,3 @@
+##services-restart/nginx
+
+Placing an empty file with the name of "yes" or "yes.txt" here will restart all php-fpm services on all servers.

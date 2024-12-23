@@ -1,0 +1,58 @@
+#nginx do not allow hypens to be read as variables - so use the map module
+#we need to use this for opcahe status page and phpino status page
+map $args $param_setphpver {
+	"~(^|&)opcache-status-php-version=(?<val>[^&]+)"  $val;
+}
+
+
+server {
+	listen 80;
+	listen [::]:80;
+	
+	
+	#following server block will only match
+	#worker*.*.* or local-worker*.*.*
+	#https://regex101.com/r/ZJRbUF/2
+	#make sure to add the ~ in the start and ; in the end of the string
+	
+	server_name ~^((?<local>local-))?((?<sub>ctrl|ctrl-+[0-9]+)\.)(?<domain>.*)$;
+	
+	root /var/www/controller/worker;
+	include snippets/global-restrictions.conf;
+  
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+	
+	add_header 'Access-Control-Allow-Origin' "*" always;
+	
+	location  /api-v1/ {
+		rewrite ^(.*)/(.*)/(.*)/$       /api-v1/index.php?component=$2&task=$3 last;
+		rewrite ^(.*)/(.*)/(.*)$        /api-v1/index.php?component=$2&task=$3 last;
+		rewrite ^(.*)/(.*)/$            /api-v1/index.php?component=$2 last;
+		rewrite ^(.*)/(.*)$             /api-v1/index.php?component=$2 last;
+	}
+
+
+	
+	location / {
+		try_files $uri $uri/ /index.php?$args ;
+	}
+	
+	
+	
+	
+	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+
+		if ($arg_opcache-status-php-version) {
+			fastcgi_pass unix:/run/php/php${param_setphpver}-fpm.sock;
+		}
+		
+		#default php version here
+		include snippets/default-php-version.conf;
+	}
+
+
+}
