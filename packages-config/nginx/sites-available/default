@@ -9,14 +9,13 @@ upstream wpscalepro_primary_server {
 
 
 #apply rate limit
-limit_req_zone $binary_remote_addr zone=ip:24m rate=360r/m;
+limit_req_zone $http_cf_connecting_ip zone=ip:24m rate=960r/m;
 
 
 
 
 server {
 
-  #access_log /dev/null;
   access_log /var/log/nginx/access.log withhost;
     
   set $auto_load_balance_target "wpscalepro";
@@ -28,37 +27,37 @@ server {
   
   
   location ~ ^/wp-admin/update.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
   location ~ ^/wp-admin/plugin-install.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
   location ~ ^/wp-admin/theme-install.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
   location ~ ^/wp-admin/plugins.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
   location ~ ^/wp-admin/themes.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
   location ~ ^/wp-admin/update-core.php {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
@@ -67,7 +66,7 @@ server {
   
   
   location ~ ^/wp-admin/index.php$ {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     access_by_lua_block {
     
@@ -90,7 +89,7 @@ server {
   
   
   location ~ ^/wp-admin/admin-ajax.php$ {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     access_by_lua_block {
     
@@ -117,7 +116,7 @@ server {
   
   
   location / {
-    limit_req zone=ip burst=500;
+    include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro;
     include     snippets/wpscalepro-proxy-pass.conf;
@@ -145,7 +144,7 @@ server {
 #
 server {
 
-  access_log /dev/null;
+  access_log /dev/null; #disable access logs
   
   listen 8080 default_server;
   listen [::]:8080 default_server;

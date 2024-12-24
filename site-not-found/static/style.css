@@ -1,0 +1,41 @@
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  background: #f8f9fc;
+  color: #2c3e50;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+  font-family: open sans, sans-serif;
+}
+
+img.logo{
+  max-width: 420px;
+  margin-bottom: 20px;
+}
+
+p{
+  line-height: 1.6;
+  font-size: 1.05em;
+  font-weight: 400;
+  font-size: 90%;
+}
+
+h2{
+  font-size: 120%;
+}
+
+.display-table {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.display-table-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
