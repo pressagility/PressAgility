@@ -12,11 +12,15 @@ Author URI: https://wpscalepro.com/
 License: GPLv2 or later
 */
 
-//cdn urls are hard coded. To disable the CDN simply comment out the following line.
+//cdn-enabler - CDN urls are hard coded. To disable the CDN simply comment out the following line.
 require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/cdn-enabler/cdn-enabler.php' );
 
-//redis cache is hard coded. To disable the CDN simply comment out the following line.
+//redis-cache - Cache is hard coded. To disable the CDN simply comment out the following line.
 require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/redis-cache/redis-cache.php' );
+
+//wp-rollback - 
+define( 'WP_ROLLBACK_PLUGIN_FILE', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/wp-rollback/' );
+require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/wp-rollback/wp-rollback.php' );
 
 
 //display some important info at wp admin bar.
