@@ -104,7 +104,7 @@ server {
         args = ngx.req.get_uri_args()
       end
       
-      if args and (args["action"] == "delete-plugin" or args["action"] == "install-plugin" or args["action"] == "update-plugin" or args["action"] == "delete-theme" or args["action"] == "install-theme" or args["action"] == "update-theme") then
+      if args and (args["action"] == "delete-plugin" or args["action"] == "install-plugin" or args["action"] == "update-plugin" or args["action"] == "delete-theme" or args["action"] == "install-theme" or args["action"] == "update-theme" or args["action"] == "check_plugin_dependencies" ) then
           ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
       end
 
