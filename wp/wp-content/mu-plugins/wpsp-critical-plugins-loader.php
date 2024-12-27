@@ -22,6 +22,16 @@ require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugin
 //#3 redis-cache - Cache is hard coded. To disable the CDN simply comment out the following line.
 require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/redis-cache/redis-cache.php' );
 
+//# flyingpages -
+define( 'flying_pages_config_ignore_keywords', [
+  '/wp-admin', '/wp-login.php', '/cart', '/checkout', 'add-to-cart', 'logout',
+  '#', '?', '.png', '.jpeg', '.jpg', '.gif', '.svg', '.webp'] );
+define( 'flying_pages_config_delay', 99999 );
+define( 'flying_pages_config_max_rps', 0 );
+define( 'flying_pages_config_hover_delay', 0 );
+define( 'flying_pages_config_disable_on_login', true );
+require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/flying-pages/flying-pages.php' );
+
 //#4 wp-rollback - 
 define( 'WP_ROLLBACK_PLUGIN_FILE', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/wp-rollback/' );
 require_once( '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/wp-rollback/wp-rollback.php' );
