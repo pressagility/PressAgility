@@ -13,7 +13,7 @@ function flying_pages_enqueue_scripts() {
     
     //wpsp_patch start
     //wp_enqueue_script('flying-pages', plugin_dir_url(__FILE__) . 'flying-pages.min.js', array(), FLYING_PAGES_VERSION, true);
-    wp_enqueue_script('flying-pages', plugin_dir_url('/mnt/network-share/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/flying-pages/flying-pages/') . 'flying-pages.min.js', array(), FLYING_PAGES_VERSION, true);
+    wp_enqueue_script('flying-pages', '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/flying-pages/flying-pages.min.js', array(), FLYING_PAGES_VERSION, true);
     //wpsp_patch end
     
     wp_add_inline_script(

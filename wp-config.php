@@ -41,6 +41,31 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 #####DO-NOT-REMOVE-THIS-BLOCK-END#######
 ########################################
 
+
+
+$domainExplode = explode( '.', WPSP_CURRENT_DOMAIN );
+if( count($domainExplode) > 2 ){
+  define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', true );
+}else{
+  define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', false );
+}
+
+if( WPSP_CURRENT_SITE_IS_SUBDOMAIN ){
+  
+  if (str_starts_with(WPSP_CURRENT_DOMAIN, 'stage')) {
+    define( 'WPSP_CURRENT_SITE_IS_STAGE', true );
+  }else{
+    define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
+  }
+  
+}else{
+  define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
+}
+
+
+
+
+
 define( 'WP_REDIS_IGBINARY', true );
 define( 'WP_REDIS_CLIENT', 'predis' );
 define( 'WP_REDIS_SENTINEL', 'mymaster' );
@@ -90,9 +115,21 @@ define( 'DISABLE_WP_CRON', true ); //Keep it disabled in Auto Scaling Environmen
 define( 'FS_METHOD', WPSP_FS_METHOD ); //File System Write Method
 
 define( 'WP_CONTENT_DIR', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID ); //wp-content on NFS dirve.
+
+
+if( WPSP_CURRENT_SITE_IS_STAGE ){
+  define( 'WP_PLUGIN_DIR',  '/var/www/WPScalePro.stage/wp/wp-content/plugins' ); //ensure plugins are loaded from local SSD drive.
+  define( 'WPMU_PLUGIN_DIR',  '/var/www/WPScalePro.stage/wp/wp-content/mu-plugins' ); //ensure plugins are loaded from local SSD drive.
+}else{
+  define( 'WP_PLUGIN_DIR',  '/var/www/WPScalePro/wp/wp-content/plugins' ); //ensure plugins are loaded from local SSD drive.
+  define( 'WPMU_PLUGIN_DIR',  '/var/www/WPScalePro/wp/wp-content/mu-plugins' ); //ensure plugins are loaded from local SSD drive.
+}
+
+
 define( 'WP_CONTENT_URL', 'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/site'.WPSP_SITE_ID ); //custom wp-content URL in Auto Scaling Environment.
-define( 'WP_PLUGIN_DIR',  '/var/www/WPScalePro/wp/wp-content/plugins' ); //ensure plugins are loaded from local SSD drive.
 define( 'WP_PLUGIN_URL',  'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/plugins' ); //custom plugins URL in Auto Scaling Environment.
+define( 'WPMU_PLUGIN_URL',  'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/mu-plugins' ); //custom plugins URL in Auto Scaling Environment.
+
 
 
 define( 'DISALLOW_FILE_EDIT', true ); //prohibit editing themes and plugins using the WordPress editor.

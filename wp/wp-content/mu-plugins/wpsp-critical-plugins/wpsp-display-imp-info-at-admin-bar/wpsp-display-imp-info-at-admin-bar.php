@@ -25,11 +25,17 @@ add_action( 'admin_bar_menu', function(){
   
   global $wp_admin_bar;
   
+  $titleText = 'IP:'.$_SERVER['SERVER_ADDR']. '-ID:'.WPSP_SITE_ID.'-RID:'.WPSP_RESTRICTION_GROUP_ID;
+  if( WPSP_CURRENT_SITE_IS_STAGE ){
+    $titleText .= '-STAGED-SITE';
+  }
+  
   $wp_admin_bar->add_menu( array(
     'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
     'id' => 'server_ip', // link ID, defaults to a sanitized title value
     'href' => '#',
-    'title' => 'IP:'.$_SERVER['SERVER_ADDR']. '-ID:'.WPSP_SITE_ID.'-RID:'.WPSP_RESTRICTION_GROUP_ID,
+    'title' => $titleText,
   ));
   
 }, 9999999999);
+

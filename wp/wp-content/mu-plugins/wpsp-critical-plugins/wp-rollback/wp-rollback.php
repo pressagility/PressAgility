@@ -227,7 +227,10 @@ if ( ! class_exists( 'WP_Rollback' ) ) :
 
                 wp_enqueue_script(
                     'wp-rollback-themes-script',
-                    WP_ROLLBACK_PLUGIN_URL . 'build/themes.js',
+                    //wpsp_patch start
+                    //WP_ROLLBACK_PLUGIN_URL . 'build/themes.js',
+                    '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/build/themes.js',
+                    //wpsp_patch end
                     $theme_script_asset['dependencies'],
                     $theme_script_asset['version']
                 );
@@ -236,7 +239,10 @@ if ( ! class_exists( 'WP_Rollback' ) ) :
                     'wp-rollback-themes-script', 'wprData', [
                         'ajaxurl'               => admin_url(),
                         'rollback_nonce'        => wp_create_nonce( 'wpr_rollback_nonce' ),
-                        'logo'                  => plugins_url( 'src/assets/logo.svg', WP_ROLLBACK_PLUGIN_FILE ),
+                        //wpsp_patch start
+                        //'logo'                  => plugins_url( 'src/assets/logo.svg', WP_ROLLBACK_PLUGIN_FILE ),
+                        'logo'                  => '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/src/assets/logo.svg',
+                        //wpsp_patch end
                         'avatarFallback'        => plugins_url( 'src/assets/avatar-plugin-fallback.jpg', WP_ROLLBACK_PLUGIN_FILE ),
                         'text_rollback_label'   => __( 'Rollback', 'wp-rollback' ),
                         'text_not_rollbackable' => __(
@@ -257,7 +263,10 @@ if ( ! class_exists( 'WP_Rollback' ) ) :
             wp_enqueue_script( 'updates' );
             wp_enqueue_script(
                 'wp-rollback-plugin-admin-editor',
-                plugins_url( 'build/admin.js', WP_ROLLBACK_PLUGIN_FILE ),
+                //wpsp_patch start
+                //plugins_url( 'build/admin.js', WP_ROLLBACK_PLUGIN_FILE ),
+                '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/build/admin.js',
+                //wpsp_patch end
                 $script_asset['dependencies'],
                 $script_asset['version']
             );
@@ -270,7 +279,10 @@ if ( ! class_exists( 'WP_Rollback' ) ) :
                 'restApiNonce'            => wp_create_nonce( 'wp_rest' ),
                 'adminUrl'                => admin_url( 'index.php' ),
                 'restUrl'                 => esc_url_raw( rest_url() ),
-                'logo'                    => plugins_url( 'src/assets/logo.svg', WP_ROLLBACK_PLUGIN_FILE ),
+                //wpsp_patch start
+                //'logo'                    => plugins_url( 'src/assets/logo.svg', WP_ROLLBACK_PLUGIN_FILE ),
+                'logo'                  => '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/src/assets/logo.svg',
+                //wpsp_patch end
                 'avatarFallback'          => plugins_url( 'src/assets/avatar-plugin-fallback.jpg', WP_ROLLBACK_PLUGIN_FILE ),
                 'referrer'                => wp_get_referer(),
                 'text_no_changelog_found' => isset( $_GET['plugin_slug'] ) ? sprintf(
@@ -286,7 +298,10 @@ if ( ! class_exists( 'WP_Rollback' ) ) :
 
             wp_enqueue_style(
                 'wp-rollback-plugin-admin',
-                plugins_url( 'build/admin.css', WP_ROLLBACK_PLUGIN_FILE ),
+                //wpsp_patch start
+                //plugins_url( 'build/admin.css', WP_ROLLBACK_PLUGIN_FILE ),
+                '/wp-content/site'.WPSP_SITE_ID.'/mu-plugins/wpsp-critical-plugins/wp-rollback/build/admin.css',
+                //wpsp_patch end
                 [ 'wp-components' ],
                 filemtime( WP_ROLLBACK_PLUGIN_DIR . 'build/admin.css' )
             );
