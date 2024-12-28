@@ -26,32 +26,32 @@ server {
   
   
 
-  access_by_lua_block {
-  local host = ngx.var.host
-  if string.match(host, "^stage[-%w]*%.") then
+  #access_by_lua_block {
+  #local host = ngx.var.host
+  #if string.match(host, "^stage[-%w]*%.") then
   
-      ngx.header["WWW-Authenticate"] = 'Basic realm="Protected Area"'
-      if not ngx.var.http_authorization then
-          ngx.status = ngx.HTTP_UNAUTHORIZED
-          ngx.say("Authentication required")
-          ngx.exit(ngx.HTTP_UNAUTHORIZED)
-      end
+  #    ngx.header["WWW-Authenticate"] = 'Basic realm="Protected Area"'
+  #    if not ngx.var.http_authorization then
+  #        ngx.status = ngx.HTTP_UNAUTHORIZED
+  #        ngx.say("Authentication required")
+  #        ngx.exit(ngx.HTTP_UNAUTHORIZED)
+  #    end
 
-      -- Decode the authorization header
-      local auth = ngx.var.http_authorization
-      local user_pass = ngx.decode_base64(auth:sub(7)) -- remove "Basic " prefix
-      local user, pass = user_pass:match("([^:]+):([^:]+)")
+  #    -- Decode the authorization header
+  #    local auth = ngx.var.http_authorization
+  #    local user_pass = ngx.decode_base64(auth:sub(7)) -- remove "Basic " prefix
+  #    local user, pass = user_pass:match("([^:]+):([^:]+)")
 
-      -- Check username and password
-      if not (user == "stage" and pass == "123") then
-          ngx.status = ngx.HTTP_UNAUTHORIZED
-          ngx.say("Invalid credentials")
-          ngx.exit(ngx.HTTP_UNAUTHORIZED)
-      end
+  #    -- Check username and password
+  #    if not (user == "stage" and pass == "123") then
+  #        ngx.status = ngx.HTTP_UNAUTHORIZED
+  #        ngx.say("Invalid credentials")
+  #        ngx.exit(ngx.HTTP_UNAUTHORIZED)
+  #    end
 
         
-  end
-  }
+  #end
+  #}
   
   
   
