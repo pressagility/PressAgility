@@ -50,14 +50,15 @@ if( count($domainExplode) > 2 ){
   define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', false );
 }
 
+
+//staging site logic. Every subdomain that starts with stage will be considered a staging site.
+//It could be stage.yournetwork.com or stage-test.yournetwork.com or stagetest.yournetwork.com
 if( WPSP_CURRENT_SITE_IS_SUBDOMAIN ){
-  
   if (str_starts_with(WPSP_CURRENT_DOMAIN, 'stage')) {
     define( 'WPSP_CURRENT_SITE_IS_STAGE', true );
   }else{
     define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
   }
-  
 }else{
   define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
 }
@@ -78,29 +79,6 @@ define( 'WP_REDIS_DISABLE_BANNERS', true );
 define( 'WP_REDIS_DISABLE_COMMENT', true );
 
 
-
-
-
-
-
-ini_set( 'display_errors', '1' );
-ini_set( 'display_startup_errors', '1' );
-error_reporting( E_ALL );
-
-
-// Enable WP_DEBUG mode
-define( 'WP_DEBUG', true );
-
-// Enable error logging
-define( 'WP_DEBUG_LOG', WPSP_WP_ERROR_LOG_PATH );
-
-// Disable error display
-define( 'WP_DEBUG_DISPLAY', false );
-@ini_set( 'display_errors', 0 );
-
-// Optional: Ensure PHP errors are logged
-@ini_set( 'log_errors', 1 );
-@ini_set( 'error_log', WPSP_PHP_ERROR_LOG_PATH );
 
 
 
@@ -148,6 +126,17 @@ if( WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN ){
   define( 'DISALLOW_FILE_MODS', true );
 }
 
+
+//enable debugging only for the staging sites. Do not enable debugging for production sites and keep the staging sites to minumum.
+if( WPSP_CURRENT_SITE_IS_STAGE ){
+  define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
+  define( 'WP_DEBUG_LOG', WPSP_WP_ERROR_LOG_PATH ); // Enable error logging
+  define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
+}else{
+  define( 'WP_DEBUG', false ); // Disable WP_DEBUG mode
+  define( 'WP_DEBUG_LOG', false ); // Disable error logging
+  define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
+}
 
 
 
