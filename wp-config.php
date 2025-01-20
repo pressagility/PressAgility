@@ -13,7 +13,7 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 //WPSP_PLATFORM_DOMAIN                    #contains this network primary domain name.
 //WPSP_CURRENT_DOMAIN                     #current domain name. subdomain if it's a subdomain.
 //WPSP_REGISTERED_DOMAIN                  #Current registered domain without subdomain if any.
-//WPSP_CDN_URL                            #Reverse CDN URL e.g cfcdn.WPSP_SITE_ID.WPSP_REGISTERED_DOMAIN
+//WPSP_CDN_URL                            #Reverse CDN URL e.g cfcdnsite{ID}-fc.WPSP_REGISTERED_DOMAIN
 //WPSP_CURRENT_REQUEST_ON_PRIMARY_SERVER  #If the current request is on primary server it will be true. Important for plugin/theme install/update logic behind Auto Scaling.
 
 //WPSP_WP_ERROR_LOG_PATH    #/mnt/network-share/wp-content//logs/site'.WPSP_SITE_ID.'/logs/wp-errors.log';
@@ -43,6 +43,8 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 
 
 
+
+
 $domainExplode = explode( '.', WPSP_CURRENT_DOMAIN );
 if( count($domainExplode) > 2 ){
   define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', true );
@@ -50,15 +52,14 @@ if( count($domainExplode) > 2 ){
   define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', false );
 }
 
-
-//staging site logic. Every subdomain that starts with stage will be considered a staging site.
-//It could be stage.yournetwork.com or stage-test.yournetwork.com or stagetest.yournetwork.com
 if( WPSP_CURRENT_SITE_IS_SUBDOMAIN ){
+  
   if (str_starts_with(WPSP_CURRENT_DOMAIN, 'stage')) {
     define( 'WPSP_CURRENT_SITE_IS_STAGE', true );
   }else{
     define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
   }
+  
 }else{
   define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
 }
@@ -82,6 +83,29 @@ define( 'WP_REDIS_DISABLE_COMMENT', true );
 
 
 
+
+
+
+
+
+//# errors will be logged at WPSP_WP_ERROR_LOG_PATH
+//# but type of errors that are logged depends if the site is staged or production.
+//# check the mu-plugins/wpsp-critical-plugins/error_reporting/error_reporting.php
+define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
+define( 'WP_DEBUG_LOG', WPSP_WP_ERROR_LOG_PATH ); // Enable error logging
+define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
+
+
+
+
+
+
+
+
+
+
+
+
 //needed for cloudflare
 if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
     $_SERVER['HTTPS'] = 'on';
@@ -92,7 +116,27 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 define( 'DISABLE_WP_CRON', true ); //Keep it disabled in Auto Scaling Environment.
 define( 'FS_METHOD', WPSP_FS_METHOD ); //File System Write Method
 
-define( 'WP_CONTENT_DIR', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID ); //wp-content on NFS dirve.
+
+
+//i thinks now we are using some logic in magic-deploy we cannot really use network-share-main because then we will not be able to run unison - may keep it only for the cli requests.
+$makeRequestOnNFSDrive = false;
+//if( isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' ){
+//  $makeRequestOnNFSDrive = true;
+//}
+if( php_sapi_name() == "cli" ){
+	$makeRequestOnNFSDrive = true;
+}
+
+if( $makeRequestOnNFSDrive ){
+  define( 'WP_CONTENT_DIR', '/mnt/network-share-main/wp-content/site'.WPSP_SITE_ID ); //wp-content on NFS dirve.
+}else{
+  define( 'WP_CONTENT_DIR', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID ); //wp-content on local dirve.
+}
+
+
+
+
+
 
 
 if( WPSP_CURRENT_SITE_IS_STAGE ){
@@ -126,17 +170,6 @@ if( WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN ){
   define( 'DISALLOW_FILE_MODS', true );
 }
 
-
-//enable debugging only for the staging sites. Do not enable debugging for production sites and keep the staging sites to minumum.
-if( WPSP_CURRENT_SITE_IS_STAGE ){
-  define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
-  define( 'WP_DEBUG_LOG', WPSP_WP_ERROR_LOG_PATH ); // Enable error logging
-  define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
-}else{
-  define( 'WP_DEBUG', false ); // Disable WP_DEBUG mode
-  define( 'WP_DEBUG_LOG', false ); // Disable error logging
-  define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
-}
 
 
 
