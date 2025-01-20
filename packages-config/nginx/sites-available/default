@@ -1,15 +1,21 @@
+lua_shared_dict retry_zone 10m;
+#proxy_cache_path /etc/nginx/cache levels=1:2 keys_zone=wpcache:200m max_size=10g inactive=2h use_temp_path=off;
+#proxy_cache_key "$scheme$request_method$host$request_uri";
+#proxy_ignore_headers Cache-Control Expires Set-Cookie;
+
+
 upstream wpscalepro {
   least_conn;
-  include /mnt/network-share/network-data/load-balancer/*;
+  include /mnt/network-share-main/network-data/load-balancer/*;
 }
 
 upstream wpscalepro_primary_server {
-  include /mnt/network-share/network-data/load-balancer/primary_server;
+  include /mnt/network-share-main/network-data/load-balancer/primary_server;
 }
 
 
 #apply rate limit
-limit_req_zone $http_cf_connecting_ip zone=ip:24m rate=960r/m;
+#limit_req_zone $http_cf_connecting_ip zone=ip:24m rate=960r/m;
 
 
 
@@ -19,6 +25,23 @@ server {
   access_log /var/log/nginx/access.log withhost;
     
   set $auto_load_balance_target "wpscalepro";
+  set $skip_cache 0;
+  
+  if ($request_method = POST) {
+      set $skip_cache 1;
+  }
+  if ($query_string != "") {
+      set $skip_cache 1;
+  }
+  if ($request_uri ~* "\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff|ico|mp4|mkv|avi|mov|wmv|flv|webm|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|tar|gz|7z|json|xml|css|js|woff|woff2|ttf|eot|otf|ttc|midi|mid|flac|ai|eps|psd|swf|rtf|xps|dmg|torrent|cue|vob|dat|apk|exe|bat|sh|pkg|msi|rpm|deb)$") {
+      set $skip_cache 1;
+  }
+  if ($request_uri ~* "/wp-admin/|/xmlrpc.php|wp-.*.php|^/feed/*|/tag/.*/feed/*|index.php|/.*sitemap.*\.(xml|xsl)") {
+      set $skip_cache 1;
+  }
+  if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no_cache|wordpress_logged_in") {
+      set $skip_cache 1;
+  }
   
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -94,18 +117,21 @@ server {
   
   
   
+  
+  
+  
+  
+  
   location ~ ^/wp-admin/index.php$ {
     include     snippets/limit-req-zone-ip.conf;
     
     access_by_lua_block {
-    
       ngx.req.read_body();
       local args = ngx.req.get_uri_args();
       
       if args["page"] == "wp-rollback" then
-          ngx.var.auto_load_balance_target = "wpscalepro_primary_server"
+        ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
       end
-
     }
     
     proxy_pass http://$auto_load_balance_target;
@@ -113,30 +139,34 @@ server {
   }
   
   
-  
-  
-  
+
   
   location ~ ^/wp-admin/admin-ajax.php$ {
     include     snippets/limit-req-zone-ip.conf;
     
     access_by_lua_block {
-    
       ngx.req.read_body();
-
       local args = {};
       
-      local body = ngx.req.get_body_data()
+      local body = ngx.req.get_body_data();
       if body then
-        args = ngx.decode_args(body)
+        args = ngx.decode_args( body );
       else
-        args = ngx.req.get_uri_args()
+        args = ngx.req.get_uri_args();
       end
       
-      if args and (args["action"] == "delete-plugin" or args["action"] == "install-plugin" or args["action"] == "update-plugin" or args["action"] == "delete-theme" or args["action"] == "install-theme" or args["action"] == "update-theme" or args["action"] == "check_plugin_dependencies" ) then
+      if args and (
+        args["action"] == "delete-plugin" or
+        args["action"] == "install-plugin" or
+        args["action"] == "update-plugin" or
+        args["action"] == "delete-theme" or
+        args["action"] == "install-theme" or
+        args["action"] == "update-theme" or
+        args["action"] == "query-attachments" or
+        args["action"] == "check_plugin_dependencies"
+        ) then
           ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
       end
-
     }
     
     proxy_pass http://$auto_load_balance_target;
@@ -149,6 +179,14 @@ server {
     
     proxy_pass  http://wpscalepro;
     include     snippets/wpscalepro-proxy-pass.conf;
+    #proxy_cache wpcache;
+    #proxy_cache_valid 200 301 302 2h;
+    #proxy_cache_use_stale error timeout updating invalid_header http_500 http_503;
+    #proxy_cache_min_uses 1;
+    #proxy_cache_lock on;
+    #proxy_cache_bypass $skip_cache;
+    #proxy_no_cache $skip_cache;
+    #add_header X-Wpsp-Proxy-Cache $upstream_cache_status;
   }
   
   #block reques to /xmlrpc.php 
@@ -197,6 +235,7 @@ server {
 	
 	location /wp-content/ {
 		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
 	}
 	location /wp-content/plugins/ {
 		alias /var/www/WPScalePro/wp/wp-content/plugins/;
@@ -211,6 +250,38 @@ server {
 		include snippets/fastcgi-php.conf;
 		include snippets/default-php-version.conf;
 	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          -- Access shared memory zone
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              -- Increment retries and set expiration for the key
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_wpscalepro")
+          else
+              -- Exceeded max retries, clear retry counter and exit
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_wpscalepro {
+      proxy_pass http://wpscalepro;
+      include snippets/wpscalepro-proxy-pass.conf;
+  }
+  
 }
 
 
@@ -240,6 +311,9 @@ server {
 	listen 8080;
 	listen [::]:8080;
   server_name ~^cfcdnsite(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+  
+  # Custom header with server IP address
+  add_header X-Wpsp-Cdn-Origin-Server $server_addr always;
 
 	root /var/www/WPScalePro/wp/;
 	include snippets/global-restrictions.conf;
@@ -251,9 +325,25 @@ server {
 	
 	#ADD CROS HEADERS HERE
 	add_header "Access-Control-Allow-Origin" "*" always;
+  
+  location /genimage/ {
+    root /var/www/;
+
+    # Try to serve the requested URI as a file, or fallback to index.php for all requests
+    try_files $uri $uri/ /genimage/index.php?$args;
+
+    # Make sure requests to /genimage/index.php are processed by PHP
+    location = /genimage/index.php {
+        include snippets/fastcgi-php.conf;
+        include snippets/default-php-version.conf;
+        fastcgi_param SCRIPT_FILENAME /var/www/genimage/index.php;
+
+    }
+  }
 
 	location /wp-content/ {
 		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
 	}
 	location /wp-content/plugins/ {
 		alias /var/www/WPScalePro/wp/wp-content/plugins/;
@@ -268,6 +358,37 @@ server {
 		include snippets/fastcgi-php.conf;
 		include snippets/default-php-version.conf;
 	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          -- Access shared memory zone
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              -- Increment retries and set expiration for the key
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_wpscalepro")
+          else
+              -- Exceeded max retries, clear retry counter and exit
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_wpscalepro {
+      proxy_pass http://wpscalepro;
+      include snippets/wpscalepro-proxy-pass.conf;
+  }
 	
 	
 }
