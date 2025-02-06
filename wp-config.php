@@ -14,10 +14,15 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 //WPSP_CURRENT_DOMAIN                     #current domain name. subdomain if it's a subdomain.
 //WPSP_REGISTERED_DOMAIN                  #Current registered domain without subdomain if any.
 //WPSP_CDN_URL                            #Reverse CDN URL e.g cfcdnsite{ID}-fc.WPSP_REGISTERED_DOMAIN
-//WPSP_CURRENT_REQUEST_ON_PRIMARY_SERVER  #If the current request is on primary server it will be true. Important for plugin/theme install/update logic behind Auto Scaling.
 
-//WPSP_WP_ERROR_LOG_PATH    #/mnt/network-share/wp-content//logs/site'.WPSP_SITE_ID.'/logs/wp-errors.log';
-//WPSP_PHP_ERROR_LOG_PATH   #/mnt/network-share/wp-content/logs/site'.WPSP_SITE_ID.'/logs/php-errors.log';
+//WPSP_WP_ERROR_LOG_PATH    #/mnt/network-share/wp-content/logs/site'.WPSP_SITE_ID.'/logs/wp-errors.log';
+
+
+//WPSP_CLOUDFLARE_R2_ACCOUNT_ID
+//WPSP_CLOUDFLARE_R2_URL_DOMAIN
+//WPSP_CLOUDFLARE_R2_API_KEY
+//WPSP_CLOUDFLARE_R2_API_VALUE
+//WPSP_CLOUDFLARE_R2_API_VALUE_S3
 
 
 //WPSP_DB_NAME       #site'.WPSP_SITE_ID.'
