@@ -14,9 +14,11 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 //WPSP_CURRENT_DOMAIN                     #current domain name. subdomain if it's a subdomain.
 //WPSP_REGISTERED_DOMAIN                  #Current registered domain without subdomain if any.
 //WPSP_CDN_URL                            #Reverse CDN URL e.g cfcdnsite{ID}-fc.WPSP_REGISTERED_DOMAIN
+//WPSP_WP_CONTENT_DIR
 
-//WPSP_WP_ERROR_LOG_PATH    #/mnt/network-share/wp-content/logs/site'.WPSP_SITE_ID.'/logs/wp-errors.log';
+//WPSP_WP_ERROR_LOG_PATH    #/mnt/network-share-main/wp-content/logs/site'.WPSP_SITE_ID.'/logs/wp-errors.log';
 
+//WPSP_CURRENT_SITE_IS_STAGE
 
 //WPSP_CLOUDFLARE_R2_ACCOUNT_ID
 //WPSP_CLOUDFLARE_R2_URL_DOMAIN
@@ -48,31 +50,6 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 
 
 
-
-
-$domainExplode = explode( '.', WPSP_CURRENT_DOMAIN );
-if( count($domainExplode) > 2 ){
-  define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', true );
-}else{
-  define( 'WPSP_CURRENT_SITE_IS_SUBDOMAIN', false );
-}
-
-if( WPSP_CURRENT_SITE_IS_SUBDOMAIN ){
-  
-  if (str_starts_with(WPSP_CURRENT_DOMAIN, 'stage')) {
-    define( 'WPSP_CURRENT_SITE_IS_STAGE', true );
-  }else{
-    define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
-  }
-  
-}else{
-  define( 'WPSP_CURRENT_SITE_IS_STAGE', false );
-}
-
-
-
-
-
 define( 'WP_REDIS_IGBINARY', true );
 define( 'WP_REDIS_CLIENT', 'predis' );
 define( 'WP_REDIS_SENTINEL', 'mymaster' );
@@ -83,10 +60,6 @@ define( 'WP_REDIS_DISABLE_METRICS', true );
 define( 'WP_REDIS_DISABLE_DROPIN_CHECK', true );
 define( 'WP_REDIS_DISABLE_BANNERS', true );
 define( 'WP_REDIS_DISABLE_COMMENT', true );
-
-
-
-
 
 
 
@@ -104,13 +77,6 @@ define( 'WP_DEBUG_DISPLAY', false ); // Disable error display
 
 
 
-
-
-
-
-
-
-
 //needed for cloudflare
 if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
     $_SERVER['HTTPS'] = 'on';
@@ -120,42 +86,8 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 //define custom constants
 define( 'DISABLE_WP_CRON', true ); //Keep it disabled in Auto Scaling Environment.
 define( 'FS_METHOD', WPSP_FS_METHOD ); //File System Write Method
-
-
-
-//i thinks now we are using some logic in magic-deploy we cannot really use network-share-main because then we will not be able to run unison - may keep it only for the cli requests.
-$makeRequestOnNFSDrive = false;
-//if( isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' ){
-//  $makeRequestOnNFSDrive = true;
-//}
-if( php_sapi_name() == "cli" ){
-	$makeRequestOnNFSDrive = true;
-}
-
-if( $makeRequestOnNFSDrive ){
-  define( 'WP_CONTENT_DIR', '/mnt/network-share-main/wp-content/site'.WPSP_SITE_ID ); //wp-content on NFS dirve.
-}else{
-  define( 'WP_CONTENT_DIR', '/mnt/network-share/wp-content/site'.WPSP_SITE_ID ); //wp-content on local dirve.
-}
-
-
-
-
-
-
-
-if( WPSP_CURRENT_SITE_IS_STAGE ){
-  define( 'WP_PLUGIN_DIR',  '/var/www/WPScalePro.stage/wp/wp-content/plugins' ); //ensure plugins are loaded from local SSD drive.
-  define( 'WPMU_PLUGIN_DIR',  '/var/www/WPScalePro.stage/wp/wp-content/mu-plugins' ); //ensure plugins are loaded from local SSD drive.
-}else{
-  define( 'WP_PLUGIN_DIR',  '/var/www/WPScalePro/wp/wp-content/plugins' ); //ensure plugins are loaded from local SSD drive.
-  define( 'WPMU_PLUGIN_DIR',  '/var/www/WPScalePro/wp/wp-content/mu-plugins' ); //ensure plugins are loaded from local SSD drive.
-}
-
-
-define( 'WP_CONTENT_URL', 'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/site'.WPSP_SITE_ID ); //custom wp-content URL in Auto Scaling Environment.
-define( 'WP_PLUGIN_URL',  'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/plugins' ); //custom plugins URL in Auto Scaling Environment.
-define( 'WPMU_PLUGIN_URL',  'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/mu-plugins' ); //custom plugins URL in Auto Scaling Environment.
+define( 'WP_CONTENT_DIR', WPSP_WP_CONTENT_DIR );
+define( 'WP_CONTENT_URL', 'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/site'.WPSP_SITE_ID );
 
 
 
