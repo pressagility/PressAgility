@@ -227,7 +227,7 @@ server {
 
 
 ###
-# Generic CDN Server Config - Main Branch
+# Generic CDN Server Config
 ###
 server {
   access_log /dev/null;
@@ -316,7 +316,7 @@ server {
 
 
 ###
-# Default server configuration - Mian Branch
+# Default server configuration
 ###
 server {
 
