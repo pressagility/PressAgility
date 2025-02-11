@@ -205,89 +205,9 @@ server {
 
 
 
-
-
-# Default server configuration
-#
-server {
-
-  access_log /dev/null; #disable access logs
-  
-  listen 8080 default_server;
-  listen [::]:8080 default_server;
-  server_name _;
-  
-  # Custom header with server IP address
-  add_header X-Wpsp-Origin-Server $server_addr always;
-  
-  # Match only "/wp-admin" without a trailing slash
-  location = /wp-admin {
-      return 301 https://$host/wp-admin/;
-  }
-
-	root /var/www/WPScalePro/wp/;
-	include snippets/global-restrictions.conf;
-
-	# Add index.php to the list if you are using PHP
-	index index.php index.html index.htm index.nginx-debian.html;
-
-
-	
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
-    error_page 404 = @retry;
-	}
-	location /wp-content/plugins/ {
-		alias /var/www/WPScalePro/wp/wp-content/plugins/;
-	}
-	
-	location / {
-		try_files $uri $uri/ /index.php?$args;
-	}
-
-	# pass PHP scripts to FastCGI server
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		include snippets/default-php-version.conf;
-	}
-  
-  
-  location @retry {
-      internal;
-
-      rewrite_by_lua_block {
-          local max_retries = 3
-          local delay = 2
-          local client_ip = ngx.var.remote_addr
-          local retry_key = "retry:" .. client_ip
-
-          -- Access shared memory zone
-          local retries = ngx.shared.retry_zone:get(retry_key) or 0
-
-          if retries < max_retries then
-              -- Increment retries and set expiration for the key
-              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
-              ngx.sleep(delay)
-              ngx.exec("@retry_wpscalepro")
-          else
-              -- Exceeded max retries, clear retry counter and exit
-              ngx.shared.retry_zone:delete(retry_key)
-              ngx.exit(404)
-          end
-      }
-  }
-
-  location @retry_wpscalepro {
-      proxy_pass http://wpscalepro;
-      include snippets/wpscalepro-proxy-pass.conf;
-  }
-  
-}
-
-
-
-
+###
 #redirect www to www.domain.com
+###
 server {
   access_log /dev/null;
   listen 8080;
@@ -304,18 +224,22 @@ server {
 
 
 
-# Generic CDN Server Config
-#
+
+
+###
+# Generic CDN Server Config - Main Branch
+###
 server {
   access_log /dev/null;
 	listen 8080;
 	listen [::]:8080;
-  server_name ~^cfcdnsite(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+  server_name ~^(?:stage-)?cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+
   
   # Custom header with server IP address
-  add_header X-Wpsp-Cdn-Origin-Server $server_addr always;
+  add_header X-Wpsp-Cdn-Origin $server_addr always;
 
-	root /var/www/WPScalePro/wp/;
+	root /var/www/WPScalePro/main-branch/;
 	include snippets/global-restrictions.conf;
 
 	# Add index.php to the list if you are using PHP
@@ -345,9 +269,82 @@ server {
 		alias /mnt/network-share/wp-content/;
     error_page 404 = @retry;
 	}
-	location /wp-content/plugins/ {
-		alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	#location /wp-content/plugins/ {
+	#	alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	#}
+	
+	location / {
+		try_files $uri $uri/;
 	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_wpscalepro")
+          else
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_wpscalepro {
+      proxy_pass http://wpscalepro;
+      include snippets/wpscalepro-proxy-pass.conf;
+  }
+	
+	
+}
+
+
+
+
+
+
+
+
+###
+# Default server configuration - Mian Branch
+###
+server {
+
+  access_log /dev/null; #disable access logs
+  
+  listen 8080 default_server;
+  listen [::]:8080 default_server;
+  server_name _;
+  
+  # Custom header with server IP address
+  add_header X-Wpsp-Origin $server_addr always;
+ 
+
+	root /var/www/WPScalePro/main-branch/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+
+
+	
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
+	}
+	#location /wp-content/plugins/ {
+	#	alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	#}
 	
 	location / {
 		try_files $uri $uri/ /index.php?$args;
@@ -369,16 +366,13 @@ server {
           local client_ip = ngx.var.remote_addr
           local retry_key = "retry:" .. client_ip
 
-          -- Access shared memory zone
           local retries = ngx.shared.retry_zone:get(retry_key) or 0
 
           if retries < max_retries then
-              -- Increment retries and set expiration for the key
               ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
               ngx.sleep(delay)
               ngx.exec("@retry_wpscalepro")
           else
-              -- Exceeded max retries, clear retry counter and exit
               ngx.shared.retry_zone:delete(retry_key)
               ngx.exit(404)
           end
@@ -389,6 +383,5 @@ server {
       proxy_pass http://wpscalepro;
       include snippets/wpscalepro-proxy-pass.conf;
   }
-	
-	
+  
 }

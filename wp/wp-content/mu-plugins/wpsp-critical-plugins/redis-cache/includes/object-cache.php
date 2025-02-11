@@ -857,7 +857,7 @@ class WP_Object_Cache {
             //wpsp_patch start
             //$pluginDir = defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR . '/redis-cache' : null;
             //$contentDir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/plugins/redis-cache' : null;
-            $pluginDir = '/var/www/WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/redis-cache';
+            $pluginDir = dirname( dirname(__FILE__) );
             $contentDir = $pluginDir;
             //wpsp_patch end
             
