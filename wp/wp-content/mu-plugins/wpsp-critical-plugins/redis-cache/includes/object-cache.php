@@ -1147,11 +1147,6 @@ class WP_Object_Cache {
      * @return void
      */
     public function fetch_info() {
-        //wpsp_patch start
-        $this->redis_version = '7.4.1';
-        return;
-        //wpsp_patch end
-        
         if ( defined( 'WP_REDIS_CLUSTER' ) ) {
             $connectionId = is_string( WP_REDIS_CLUSTER )
                 ? 'SERVER'
@@ -1164,16 +1159,15 @@ class WP_Object_Cache {
             if ( $this->is_predis() ) {
                 $connection = $this->redis->getConnection();
                 if ( $connection instanceof Predis\Connection\Replication\ReplicationInterface ) {
+                    $node = $connection->getCurrent();
                     $connection->switchToMaster();
                 }
             }
 
             $info = $this->redis->info();
-            //wpsp_patch start
-            //once switchToMaster to master it will not replicate the read requests to the other connected redis servers.
-            //so we need to switch back to slave. Seems like it solved the problem.
-            $connection->switchToSlave();
-            //wpsp_patch end
+            if ( isset( $node ) ) {
+                $connection->switchTo($node);
+            }
         }
 
         if ( isset( $info['redis_version'] ) ) {
