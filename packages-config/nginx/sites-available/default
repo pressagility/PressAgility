@@ -1,6 +1,8 @@
 lua_shared_dict retry_zone 10m;
+
 #proxy_cache_path /etc/nginx/cache levels=1:2 keys_zone=wpcache:200m max_size=10g inactive=2h use_temp_path=off;
 #proxy_cache_key "$scheme$request_method$host$request_uri";
+#proxy_cache_methods GET HEAD;
 #proxy_ignore_headers Cache-Control Expires Set-Cookie;
 
 
@@ -25,23 +27,24 @@ server {
   access_log /var/log/nginx/access.log withhost;
     
   set $auto_load_balance_target "wpscalepro";
-  set $skip_cache 0;
+
   
-  if ($request_method = POST) {
-      set $skip_cache 1;
-  }
-  if ($query_string != "") {
-      set $skip_cache 1;
-  }
-  if ($request_uri ~* "\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff|ico|mp4|mkv|avi|mov|wmv|flv|webm|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|tar|gz|7z|json|xml|css|js|woff|woff2|ttf|eot|otf|ttc|midi|mid|flac|ai|eps|psd|swf|rtf|xps|dmg|torrent|cue|vob|dat|apk|exe|bat|sh|pkg|msi|rpm|deb)$") {
-      set $skip_cache 1;
-  }
-  if ($request_uri ~* "/wp-admin/|/xmlrpc.php|wp-.*.php|^/feed/*|/tag/.*/feed/*|index.php|/.*sitemap.*\.(xml|xsl)") {
-      set $skip_cache 1;
-  }
-  if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no_cache|wordpress_logged_in") {
-      set $skip_cache 1;
-  }
+  #set $skip_cache 0;
+  #if ($request_method = POST) {
+  #    set $skip_cache 1;
+  #}
+  #if ($query_string != "") {
+  #    set $skip_cache 1;
+  #}
+  #if ($request_uri ~* "\.(jpg|jpeg|png|gif|bmp|webp|avif|svg|tiff|ico|mp4|mkv|avi|mov|wmv|flv|webm|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|tar|gz|7z|json|xml|css|js|woff|woff2|ttf|eot|otf|ttc|midi|mid|flac|ai|eps|psd|swf|rtf|xps|dmg|torrent|cue|vob|dat|apk|exe|bat|sh|pkg|msi|rpm|deb)$") {
+  #    set $skip_cache 1;
+  #}
+  #if ($request_uri ~* "/wp-admin/|/xmlrpc.php|wp-.*.php|^/feed/*|/tag/.*/feed/*|index.php|/.*sitemap.*\.(xml|xsl)") {
+  #    set $skip_cache 1;
+  #}
+  #if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no_cache|wordpress_logged_in") {
+  #    set $skip_cache 1;
+  #}
   
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -77,37 +80,42 @@ server {
   #}
   
   
-  
+  #
   location ~ ^/wp-admin/update.php {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
+  #
   location ~ ^/wp-admin/plugin-install.php {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
+  #
   location ~ ^/wp-admin/theme-install.php {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
+  #
   location ~ ^/wp-admin/plugins.php {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
+  #
   location ~ ^/wp-admin/themes.php {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro_primary_server;
     include     snippets/wpscalepro-proxy-pass.conf;
   }
+  #
   location ~ ^/wp-admin/update-core.php {
     include     snippets/limit-req-zone-ip.conf;
     
@@ -174,11 +182,15 @@ server {
   }
   
   
+  
+  
   location / {
     include     snippets/limit-req-zone-ip.conf;
     
     proxy_pass  http://wpscalepro;
     include     snippets/wpscalepro-proxy-pass.conf;
+    
+  
     #proxy_cache wpcache;
     #proxy_cache_valid 200 301 302 2h;
     #proxy_cache_use_stale error timeout updating invalid_header http_500 http_503;
