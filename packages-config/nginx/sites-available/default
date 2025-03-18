@@ -1,9 +1,18 @@
+###
+#full page cache - To disable comment out the following and server block include as well
+###
+include snippets/wpscalepro-full-page-cache-http-block.conf;
+
+
+###
+#Rate limit - To disable comment out the following and server block include as well
+###
+#limit_req_zone $http_cf_connecting_ip zone=ip:24m rate=960r/m;
+
+
 lua_shared_dict retry_zone 10m;
 
-#proxy_cache_path /etc/nginx/cache levels=1:2 keys_zone=wpcache:200m max_size=10g inactive=2h use_temp_path=off;
-#proxy_cache_key "$scheme$request_method$host$request_uri";
-#proxy_cache_methods GET HEAD;
-#proxy_ignore_headers Cache-Control Expires Set-Cookie;
+
 
 
 upstream wpscalepro {
@@ -16,8 +25,6 @@ upstream wpscalepro_primary_server {
 }
 
 
-#apply rate limit
-#limit_req_zone $http_cf_connecting_ip zone=ip:24m rate=960r/m;
 
 
 
@@ -25,26 +32,8 @@ upstream wpscalepro_primary_server {
 server {
 
   access_log /var/log/nginx/access.log withhost;
-    
   set $auto_load_balance_target "wpscalepro";
 
-  
-  #set $skip_cache 0;
-  #if ($request_method = POST) {
-  #    set $skip_cache 1;
-  #}
-  #if ($query_string != "") {
-  #    set $skip_cache 1;
-  #}
-  #if ($request_uri ~* "\.(jpg|jpeg|png|gif|bmp|webp|avif|svg|tiff|ico|mp4|mkv|avi|mov|wmv|flv|webm|mp3|wav|ogg|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|tar|gz|7z|json|xml|css|js|woff|woff2|ttf|eot|otf|ttc|midi|mid|flac|ai|eps|psd|swf|rtf|xps|dmg|torrent|cue|vob|dat|apk|exe|bat|sh|pkg|msi|rpm|deb)$") {
-  #    set $skip_cache 1;
-  #}
-  #if ($request_uri ~* "/wp-admin/|/xmlrpc.php|wp-.*.php|^/feed/*|/tag/.*/feed/*|index.php|/.*sitemap.*\.(xml|xsl)") {
-  #    set $skip_cache 1;
-  #}
-  #if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no_cache|wordpress_logged_in") {
-  #    set $skip_cache 1;
-  #}
   
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -80,6 +69,9 @@ server {
   #}
   
   
+  location = /wp-admin {
+    return 301 $scheme://$host/wp-admin/;
+  }
   #
   location ~ ^/wp-admin/update.php {
     include     snippets/limit-req-zone-ip.conf;
@@ -183,6 +175,20 @@ server {
   
   
   
+  location /wp-admin/ {
+    include     snippets/limit-req-zone-ip.conf;
+    
+    proxy_pass  http://wpscalepro;
+    include     snippets/wpscalepro-proxy-pass.conf;
+    
+    
+    ###
+    #full page cache - To disable comment out the following and http block include as well at the top
+    ###
+    proxy_cache_valid 200 301 302 3s;
+    include snippets/wpscalepro-full-page-cache-server-block.conf;
+  }
+  
   
   location / {
     include     snippets/limit-req-zone-ip.conf;
@@ -190,15 +196,12 @@ server {
     proxy_pass  http://wpscalepro;
     include     snippets/wpscalepro-proxy-pass.conf;
     
-  
-    #proxy_cache wpcache;
-    #proxy_cache_valid 200 301 302 2h;
-    #proxy_cache_use_stale error timeout updating invalid_header http_500 http_503;
-    #proxy_cache_min_uses 1;
-    #proxy_cache_lock on;
-    #proxy_cache_bypass $skip_cache;
-    #proxy_no_cache $skip_cache;
-    #add_header X-Wpsp-Proxy-Cache $upstream_cache_status;
+    
+    ###
+    #full page cache - To disable comment out the following and http block include as well at the top
+    ###
+    proxy_cache_valid 200 301 302 7s;
+    include snippets/wpscalepro-full-page-cache-server-block.conf;
   }
   
   #block reques to /xmlrpc.php 
@@ -347,9 +350,8 @@ server {
 
 	# Add index.php to the list if you are using PHP
 	index index.php index.html index.htm index.nginx-debian.html;
+  
 
-
-	
 	location /wp-content/ {
 		alias /mnt/network-share/wp-content/;
     error_page 404 = @retry;

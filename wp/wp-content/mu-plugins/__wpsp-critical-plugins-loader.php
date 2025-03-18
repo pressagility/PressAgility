@@ -17,6 +17,32 @@ if( !defined('ABSPATH') ){
 
 
 
+
+###
+#set superduper constant
+#Use this constant to create logic for superduper only functions
+###
+if( !defined('WPSP_CURRENT_USER_IS_SUPER_DUPER') ){
+  
+  add_action( 'init', function(){
+    
+    $currentUser = wp_get_current_user();
+    if( isset($currentUser->data->user_login) && $currentUser->data->user_login == 'superduper' ){
+      
+      define( 'WPSP_CURRENT_USER_IS_SUPER_DUPER', true );
+      
+    }else{
+      
+      define( 'WPSP_CURRENT_USER_IS_SUPER_DUPER', false );
+      
+    }
+
+  }, 0 );
+  
+}
+
+
+
 if( WPSP_CURRENT_SITE_IS_STAGE ){
   define( 'WPSP_MU_DIR_PATH', '/var/www/WPScalePro/stage-branch' );
 }else{
@@ -32,8 +58,19 @@ add_filter( 'admin_email_check_interval', '__return_false' );
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 ###
-//Optional plugin that can be commented out based on your own requirements.
+//Optional plugin that can be commented out based on your network requirements.
 ###
 
 
@@ -60,27 +97,15 @@ require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/cdn
 define( 
     'flying_pages_config_ignore_keywords', 
     [
-      '/wp-admin',
-      '/wp-login.php',
-      '/cart',
-      '/checkout',
-      'add-to-cart',
-      'logout',
-      '#',
-      '?',
-      '.png',
-      '.jpeg',
-      '.jpg',
-      '.gif',
-      '.svg',
-      '.webp',
+      '/wp-admin', '/wp-login.php', '/cart', '/checkout', 'add-to-cart', 'logout', '#', '?',
+      '.png', '.jpeg', '.jpg', '.gif', '.svg', '.webp', '.avif',
     ] 
   );
   
 define( 'flying_pages_config_delay', 99999 ); //do not start pre loading the page automatically.
 define( 'flying_pages_config_max_rps', 0 ); //max requests per second
 define( 'flying_pages_config_hover_delay', 0 ); //mouse hover delay
-define( 'flying_pages_config_disable_on_login', true ); //only for non-logged in users - do not change it.
+define( 'flying_pages_config_disable_on_login', false );
 //To dsiable flying pages comment out the following line.
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/flying-pages/flying-pages.php' );
 
@@ -96,7 +121,7 @@ require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/fly
 
 
 ###
-//Here load all the **critial** plugins that you want to be enabled by default.
+//Here load all the **critial** plugins here
 ###
 
 
@@ -109,7 +134,10 @@ require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/err
 
 
 
-
+###
+// #2 superduper related functions - Do not Remove or Comment out.*****
+###
+require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wpsp-superduper-related-functions/wpsp-superduper-related-functions.php' );
 
 
 
@@ -117,24 +145,23 @@ require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/err
 
 
 ###
-// #2 all-in-one-wp-migration - We are using patched version all-in-one-wp-migration
+// #3 all-in-one-wp-migration - We are using patched version all-in-one-wp-migration
 ###
 define( 'REQUIRED_FILE_all_in_one_wp_migration', true );
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/all-in-one-wp-migration/all-in-one-wp-migration.php' );
 
 
 ###
-// #2.1 all-in-one-wp-migration-s3-client-extension - If you own this plugin files please add to your private GIT repo at the following path
+// #3.1 all-in-one-wp-migration-s3-client-extension - If you own this plugin files please add to your private GIT repo at the following path
 // WPScalePro/wp/wp-content/mu-plugins/wpsp-critical-plugins/all-in-one-wp-migration-s3-client-extension
 //and uncomment the following two lines:
 ###
-//define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
-//require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
-
+#define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
+#require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
 
 
 ###
-// #2.2 wpsp-all-in-one-wp-migration-hooks - Do not Remove or Comment out.*****
+// #3.2 wpsp-all-in-one-wp-migration-hooks - Do not Remove or Comment out.*****
 ###
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wpsp-all-in-one-wp-migration-hooks/wpsp-all-in-one-wp-migration-hooks.php' );
 
@@ -149,34 +176,34 @@ require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wps
 
 
 ###
-// #3 one-time-login - critical plugin. Do not Remove or Comment out.*****
+// #4 one-time-login - critical plugin. Do not Remove or Comment out.*****
 ###
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/one-time-login/one-time-login.php' );
 
 
 ###
-// #4 redis-cache - Cache is hard coded. Do not Remove or Comment out.*****
+// #5 redis-cache - Cache is hard coded. Do not Remove or Comment out.*****
 ###
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/redis-cache/redis-cache.php' );
 
 
 
 ###
-// #5 wpsp lifecyle hooks. Do not Remove or Comment out.****
+// #6 wpsp lifecyle hooks. Do not Remove or Comment out.****
 ###
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wpsp-lifesycle-hooks/wpsp-lifesycle-hooks.php' );
 
 
 
 ###
-// #6 Git integration - critical plugin. Do not Remove or Comment out.*****
+// #7 Git integration - critical plugin. Do not Remove or Comment out.*****
 ###
 require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wpsp-magic-functions/wpsp-git-cicd-magic-deploy.php' );
 
 
 
 ###
-// #7 wp-rollback - critical plugin. Do not Remove or Comment out.*****
+// #8 wp-rollback - critical plugin. Do not Remove or Comment out.*****
 ###
 if( !WPSP_CURRENT_SITE_IS_STAGE && WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN  ){
   require_once( WPSP_MU_DIR_PATH.'/wp-content/mu-plugins/wpsp-critical-plugins/wp-rollback/wp-rollback.php' );
@@ -187,7 +214,7 @@ if( !WPSP_CURRENT_SITE_IS_STAGE && WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN  
 
 
 ###
-// #8 upload media to s3/r2/spaces/ - critical plugin. Do not Remove or Comment out.*****
+// #9 upload media to s3/r2/spaces/ - critical plugin. Do not Remove or Comment out.*****
 ###
 
 if( !defined('NETWORK_SELF_HOSTED_FILE_STORE') ){
@@ -204,7 +231,7 @@ if( NETWORK_SELF_HOSTED_FILE_STORE === false ){
 
 
 ###
-// #9 Generate Images on the fly - critical plugin. Do not Remove or Comment out.*****
+// #10 Generate Images on the fly - critical plugin. Do not Remove or Comment out.*****
 //order is imporant must come after wpsp-offload-files-magic.php
 ###
 define( 'WPSP_DISABLE_IMAGE_SIZES', true ); //this will stop generating WP Image Thumbnails

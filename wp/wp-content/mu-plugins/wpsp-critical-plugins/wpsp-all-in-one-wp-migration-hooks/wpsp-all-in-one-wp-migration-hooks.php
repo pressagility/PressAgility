@@ -30,36 +30,6 @@ if( defined('REQUIRED_FILE_all_in_one_wp_migration') && REQUIRED_FILE_all_in_one
 
 
 
-//if the call is from "wp-cli" don't run the code below
-if ( defined('WP_CLI') && WP_CLI ) {
-  return;
-}
-
-
-
-
-
-
-
-#set constant if current user is superduper?
-if( !defined('WPSP_CURRENT_USER_IS_SUPER_DUPER') ){
-  
-  add_action( 'init', function(){
-    
-    $currentUser = wp_get_current_user();
-    if( isset($currentUser->data->user_login) && $currentUser->data->user_login == 'superduper' ){
-      
-      define( 'WPSP_CURRENT_USER_IS_SUPER_DUPER', true );
-      
-    }else{
-      
-      define( 'WPSP_CURRENT_USER_IS_SUPER_DUPER', false );
-      
-    }
-
-  }, 0 );
-  
-} //if( !defined('WPSP_CURRENT_USER_IS_SUPER_DUPER') ){
 
 
 
