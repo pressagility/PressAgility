@@ -13,6 +13,12 @@ License: GPLv2 or later
 */
 
 
+//if the call is from "wp-cli" don't run the code below
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	return;
+}
+
+
 
 
 
