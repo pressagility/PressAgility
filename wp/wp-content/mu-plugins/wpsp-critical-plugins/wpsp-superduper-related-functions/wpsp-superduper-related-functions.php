@@ -26,7 +26,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 add_action( 'pre_user_query', function( $user_search ){
   
   if( WPSP_CURRENT_USER_IS_SUPER_DUPER ){
-    return true;
+    return $user_search;
   }
 	
 	global $wpdb;
@@ -41,7 +41,7 @@ add_action( 'pre_user_query', function( $user_search ){
 add_filter( 'views_users', function($views){
 	
 	if( WPSP_CURRENT_USER_IS_SUPER_DUPER ){
-    return true;
+    return $views;
   }
 	
 	
