@@ -20,11 +20,13 @@ require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
 
 //WPSP_CURRENT_SITE_IS_STAGE
 
+//WPSP_CLOUDFLARE_R2_BUCKET
 //WPSP_CLOUDFLARE_R2_ACCOUNT_ID
 //WPSP_CLOUDFLARE_R2_URL_DOMAIN
 //WPSP_CLOUDFLARE_R2_API_KEY
 //WPSP_CLOUDFLARE_R2_API_VALUE
 //WPSP_CLOUDFLARE_R2_API_VALUE_S3
+
 
 
 //WPSP_DB_NAME       #site'.WPSP_SITE_ID.'
@@ -89,22 +91,16 @@ define( 'FS_METHOD', WPSP_FS_METHOD ); //File System Write Method
 define( 'WP_CONTENT_DIR', WPSP_WP_CONTENT_DIR );
 define( 'WP_CONTENT_URL', 'https://'.WPSP_CURRENT_DOMAIN.'/wp-content/site'.WPSP_SITE_ID );
 
-
-
 define( 'DISALLOW_FILE_EDIT', true ); //prohibit editing themes and plugins using the WordPress editor.
+define( 'AUTOMATIC_UPDATER_DISABLED', true ); //do not allow automatic updates
+define( 'WP_AUTO_UPDATE_CORE', false ); //do not allow core updates
+
 
 //Only allow plugins/themes install/update/delete on primary server.
 if( WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN ){
-  
-  define( 'AUTOMATIC_UPDATER_DISABLED', false ); //Allow automatic updates
-  define( 'WP_AUTO_UPDATE_CORE', 'minor' ); //Allow core updates
-  define( 'DISALLOW_FILE_MODS', false ); //Allow plugin/theme installs
-  
+  define( 'DISALLOW_FILE_MODS', false );
 }else{
-  
-  define( 'AUTOMATIC_UPDATER_DISABLED', true ); //only allow automatic updates on primary server
-  define( 'WP_AUTO_UPDATE_CORE', false );
-  define( 'DISALLOW_FILE_MODS', true );
+  define( 'DISALLOW_FILE_MODS', false );
 }
 
 
