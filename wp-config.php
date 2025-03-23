@@ -100,7 +100,7 @@ define( 'WP_AUTO_UPDATE_CORE', false ); //do not allow core updates
 if( WPSP_CURRENT_DOMAIN == WPSP_PLATFORM_DOMAIN ){
   define( 'DISALLOW_FILE_MODS', false );
 }else{
-  define( 'DISALLOW_FILE_MODS', false );
+  define( 'DISALLOW_FILE_MODS', true );
 }
 
 
