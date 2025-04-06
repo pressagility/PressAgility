@@ -20,12 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 
+
 // add links/menus to the admin bar
 add_action( 'admin_bar_menu', function(){
   
+  if( WPSP_CURRENT_USER_IS_SUPER_DUPER == false ){
+    return;
+  }
+  
   global $wp_admin_bar;
   
-  $titleText = 'IP:'.$_SERVER['SERVER_ADDR']. '-ID:'.WPSP_SITE_ID.'-RID:'.WPSP_RESTRICTION_GROUP_ID;
+  $titleText = 'ID:'.WPSP_SITE_ID.' - Restrict-ID:'.WPSP_RESTRICTION_GROUP_ID.' - IP:'.$_SERVER['SERVER_ADDR'];
   if( WPSP_CURRENT_SITE_IS_STAGE ){
     $titleText .= '-STAGED-SITE';
   }
