@@ -252,7 +252,7 @@ server {
 
   
   # Custom header with server IP address
-  add_header X-Wpsp-Cdn-Origin $server_addr always;
+  add_header X-Wppa-Cdn-Origin $server_addr always;
 
 	root /var/www/PressAgility/main-branch/;
 	include snippets/global-restrictions.conf;
@@ -342,7 +342,7 @@ server {
   server_name _;
   
   # Custom header with server IP address
-  add_header X-Wpsp-Origin $server_addr always;
+  add_header X-Wppa-Origin $server_addr always;
  
 
 	root /var/www/PressAgility/main-branch/;
