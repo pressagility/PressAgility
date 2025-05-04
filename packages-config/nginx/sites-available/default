@@ -1,7 +1,7 @@
 ###
 #full page cache - To disable comment out the following and server block include as well
 ###
-include snippets/wpscalepro-full-page-cache-http-block.conf;
+include snippets/pressagility-full-page-cache-http-block.conf;
 
 
 ###
@@ -15,12 +15,12 @@ lua_shared_dict retry_zone 10m;
 
 
 
-upstream wpscalepro {
+upstream pressagility {
   least_conn;
   include /mnt/network-share-main/network-data/load-balancer/*;
 }
 
-upstream wpscalepro_primary_server {
+upstream pressagility_primary_server {
   include /mnt/network-share-main/network-data/load-balancer/primary_server;
 }
 
@@ -32,7 +32,7 @@ upstream wpscalepro_primary_server {
 server {
 
   access_log /var/log/nginx/access.log withhost;
-  set $auto_load_balance_target "wpscalepro";
+  set $auto_load_balance_target "pressagility";
 
   
   listen 80 default_server;
@@ -76,43 +76,43 @@ server {
   location ~ ^/wp-admin/update.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   #
   location ~ ^/wp-admin/plugin-install.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   #
   location ~ ^/wp-admin/theme-install.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   #
   location ~ ^/wp-admin/plugins.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   #
   location ~ ^/wp-admin/themes.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   #
   location ~ ^/wp-admin/update-core.php {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro_primary_server;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility_primary_server;
+    include     snippets/pressagility-proxy-pass.conf;
   }
   
   
@@ -130,12 +130,12 @@ server {
       local args = ngx.req.get_uri_args();
       
       if args["page"] == "wp-rollback" then
-        ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
+        ngx.var.auto_load_balance_target = "pressagility_primary_server";
       end
     }
     
     proxy_pass http://$auto_load_balance_target;
-    include snippets/wpscalepro-proxy-pass.conf;
+    include snippets/pressagility-proxy-pass.conf;
   }
   
   
@@ -165,12 +165,12 @@ server {
         args["action"] == "query-attachments" or
         args["action"] == "check_plugin_dependencies"
         ) then
-          ngx.var.auto_load_balance_target = "wpscalepro_primary_server";
+          ngx.var.auto_load_balance_target = "pressagility_primary_server";
       end
     }
     
     proxy_pass http://$auto_load_balance_target;
-    include snippets/wpscalepro-proxy-pass.conf;
+    include snippets/pressagility-proxy-pass.conf;
   }
   
   
@@ -178,30 +178,30 @@ server {
   location /wp-admin/ {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility;
+    include     snippets/pressagility-proxy-pass.conf;
     
     
     ###
     #full page cache - To disable comment out the following and http block include as well at the top
     ###
     proxy_cache_valid 200 301 302 3s;
-    include snippets/wpscalepro-full-page-cache-server-block.conf;
+    include snippets/pressagility-full-page-cache-server-block.conf;
   }
   
   
   location / {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://wpscalepro;
-    include     snippets/wpscalepro-proxy-pass.conf;
+    proxy_pass  http://pressagility;
+    include     snippets/pressagility-proxy-pass.conf;
     
     
     ###
     #full page cache - To disable comment out the following and http block include as well at the top
     ###
     proxy_cache_valid 200 301 302 7s;
-    include snippets/wpscalepro-full-page-cache-server-block.conf;
+    include snippets/pressagility-full-page-cache-server-block.conf;
   }
   
   #block reques to /xmlrpc.php 
@@ -254,7 +254,7 @@ server {
   # Custom header with server IP address
   add_header X-Wpsp-Cdn-Origin $server_addr always;
 
-	root /var/www/WPScalePro/main-branch/;
+	root /var/www/PressAgility/main-branch/;
 	include snippets/global-restrictions.conf;
 
 	# Add index.php to the list if you are using PHP
@@ -285,7 +285,7 @@ server {
     error_page 404 = @retry;
 	}
 	#location /wp-content/plugins/ {
-	#	alias /var/www/WPScalePro/wp/wp-content/plugins/;
+	#	alias /var/www/PressAgility/wp/wp-content/plugins/;
 	#}
 	
 	location / {
@@ -307,7 +307,7 @@ server {
           if retries < max_retries then
               ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
               ngx.sleep(delay)
-              ngx.exec("@retry_wpscalepro")
+              ngx.exec("@retry_pressagility")
           else
               ngx.shared.retry_zone:delete(retry_key)
               ngx.exit(404)
@@ -315,9 +315,9 @@ server {
       }
   }
 
-  location @retry_wpscalepro {
-      proxy_pass http://wpscalepro;
-      include snippets/wpscalepro-proxy-pass.conf;
+  location @retry_pressagility {
+      proxy_pass http://pressagility;
+      include snippets/pressagility-proxy-pass.conf;
   }
 	
 	
@@ -345,7 +345,7 @@ server {
   add_header X-Wpsp-Origin $server_addr always;
  
 
-	root /var/www/WPScalePro/main-branch/;
+	root /var/www/PressAgility/main-branch/;
 	include snippets/global-restrictions.conf;
 
 	# Add index.php to the list if you are using PHP
@@ -356,9 +356,6 @@ server {
 		alias /mnt/network-share/wp-content/;
     error_page 404 = @retry;
 	}
-	#location /wp-content/plugins/ {
-	#	alias /var/www/WPScalePro/wp/wp-content/plugins/;
-	#}
 	
 	location / {
 		try_files $uri $uri/ /index.php?$args;
@@ -385,7 +382,7 @@ server {
           if retries < max_retries then
               ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
               ngx.sleep(delay)
-              ngx.exec("@retry_wpscalepro")
+              ngx.exec("@retry_pressagility")
           else
               ngx.shared.retry_zone:delete(retry_key)
               ngx.exit(404)
@@ -393,9 +390,9 @@ server {
       }
   }
 
-  location @retry_wpscalepro {
-      proxy_pass http://wpscalepro;
-      include snippets/wpscalepro-proxy-pass.conf;
+  location @retry_pressagility {
+      proxy_pass http://pressagility;
+      include snippets/pressagility-proxy-pass.conf;
   }
   
 }
