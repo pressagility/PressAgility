@@ -3,9 +3,9 @@
 #####DO-NOT-REMOVE-THIS-BLOCK-START#####
 ########################################
 
-require_once( '/var/www/WPScalePro/WPScalePro-Controller.php' );
+require_once( '/var/www/PressAgility/PressAgility-Controller.php' );
 
-//We have already defined the following constants in above WPScalePro-Controller.php file
+//We have already defined the following constants in above PressAgility-Controller.php file
 //You can use the following constants in your mu-plugins/plugins/themes to further customize your Auto Scaled WordPress Network.
 
 //WPPA_SITE_ID                            #this is current site ID.
