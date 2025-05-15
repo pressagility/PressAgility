@@ -245,7 +245,9 @@ server {
 # Generic CDN Server Config
 ###
 server {
+
   access_log /dev/null;
+  
 	listen 8080;
 	listen [::]:8080;
   server_name ~^(?:stage-)?cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
@@ -284,9 +286,6 @@ server {
 		alias /mnt/network-share/wp-content/;
     error_page 404 = @retry;
 	}
-	#location /wp-content/plugins/ {
-	#	alias /var/www/PressAgility/wp/wp-content/plugins/;
-	#}
 	
 	location / {
 		try_files $uri $uri/;
@@ -327,11 +326,81 @@ server {
 
 
 
+###
+# Default server configuration - Stage Branch
+###
+server {
+
+  access_log /dev/null; #disable access logs
+  
+  listen 8080;
+  listen [::]:8080;
+  server_name ~^stage.*$;
+  
+  # Custom header with server IP address
+  add_header X-Wppa-Origin $server_addr always;
+ 
+
+	root /var/www/PressAgility/stage-branch/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+  
+
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
+	}
+	
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		include snippets/default-php-version.conf;
+	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_pressagility")
+          else
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_pressagility {
+      proxy_pass http://pressagility;
+      include snippets/pressagility-proxy-pass.conf;
+  }
+  
+}
+
+
+
+
 
 
 
 ###
-# Default server configuration
+# Default server configuration - Main Branch
 ###
 server {
 
