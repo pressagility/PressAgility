@@ -764,13 +764,15 @@ class Plugin {
                 'href' => $this->action_link( 'flush-cache' ),
             ]);
         }
-
-        $wp_admin_bar->add_node([
-            'parent' => 'redis-cache',
-            'id' => 'redis-cache-metrics',
-            'title' => __( 'Settings', 'redis-cache' ),
-            'href' => network_admin_url( $this->page ),
-        ]);
+        
+        //wppa_patch start
+        //$wp_admin_bar->add_node([
+        //    'parent' => 'redis-cache',
+        //    'id' => 'redis-cache-metrics',
+        //    'title' => __( 'Settings', 'redis-cache' ),
+        //    'href' => network_admin_url( $this->page ),
+        //]);
+        //wppa_patch end
 
         $wp_admin_bar->add_group(
             [

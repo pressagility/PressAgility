@@ -57,11 +57,11 @@ define( 'WP_REDIS_CLIENT', 'predis' );
 define( 'WP_REDIS_SENTINEL', 'mymaster' );
 define( 'WP_REDIS_SERVERS', ['tcp://127.0.0.1:26379'] );
 define( 'WP_REDIS_PREFIX', WPPA_SITE_ID );
-define( 'WP_REDIS_DISABLE_ADMINBAR', true );
 define( 'WP_REDIS_DISABLE_METRICS', true );
 define( 'WP_REDIS_DISABLE_DROPIN_CHECK', true );
 define( 'WP_REDIS_DISABLE_BANNERS', true );
 define( 'WP_REDIS_DISABLE_COMMENT', true );
+define( 'WP_REDIS_DISABLE_ADMINBAR', false ); //do not disable admin bar in case you need to flush the cache from WordPress admin.
 
 
 

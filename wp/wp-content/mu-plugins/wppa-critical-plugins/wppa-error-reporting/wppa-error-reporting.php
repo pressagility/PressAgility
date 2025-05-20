@@ -1,9 +1,9 @@
 <?php
 /**
- * @package error_reporting.php
+ * @package wppa-error-reporting.php
  */
 /*
-Plugin Name: error_reporting.php
+Plugin Name: wppa-error-reporting.php
 Plugin URI: https://pressagility.com/
 Description: Log all type of error only for staged site
 Version: 1.0.0

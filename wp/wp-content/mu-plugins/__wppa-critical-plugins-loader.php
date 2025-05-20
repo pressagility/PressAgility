@@ -130,7 +130,7 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/fly
 ###
 // #1 to update and manage reporting error level edit the following file. - Do not Remove or Comment out.*****
 ###
-require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/error_reporting/error_reporting.php' );
+require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wppa-error-reporting/wppa-error-reporting.php' );
 
 
 
@@ -156,8 +156,8 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all
 // PressAgility/wp/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension
 //and uncomment the following two lines:
 ###
-#define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
-#require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
+define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
+require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
 
 
 ###
