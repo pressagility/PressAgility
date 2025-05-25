@@ -156,8 +156,8 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all
 // PressAgility/wp/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension
 //and uncomment the following two lines:
 ###
-define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
-require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
+#define( 'REQUIRED_FILE_all_in_one_wp_migration_s3_client_extension', true );
+#require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/all-in-one-wp-migration-s3-client-extension/all-in-one-wp-migration-s3-client-extension.php' );
 
 
 ###
