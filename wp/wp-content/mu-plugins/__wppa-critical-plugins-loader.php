@@ -75,8 +75,6 @@ add_filter( 'admin_email_check_interval', '__return_false' );
 
 
 
-
-
 ###
 // #1 display some important info at wp admin bar you may want to disable it.
 ###
@@ -85,14 +83,24 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wpp
 
 
 ###
-// #2 cdn-enabler - CDN urls are hard coded. To disable the CDN simply comment out the following line.
+// #2 Selective Full Page Cache.
+###
+if( !WPPA_CURRENT_SITE_IS_STAGE ){
+	require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wppa-selective-full-page-cache/wppa-selective-full-page-cache.php' );
+}
+
+
+
+
+###
+// #3 cdn-enabler - CDN urls are hard coded. To disable the CDN simply comment out the following line.
 ###
 require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/cdn-enabler/cdn-enabler.php' );
 
 
 
 ###
-// #6 flyingpages - To disable the CDN simply comment out the following lines.
+// #4 flyingpages - To disable comment out the following.
 ###
 define( 
     'flying_pages_config_ignore_keywords', 

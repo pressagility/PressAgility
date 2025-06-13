@@ -27,8 +27,6 @@ upstream pressagility_primary_server {
 
 
 
-
-
 server {
 
   access_log /var/log/nginx/access.log withhost;
@@ -174,11 +172,21 @@ server {
   }
   
   
+  ###
+	#This order is important. staging sites requiest will always go to primary server
+	###
+	access_by_lua_block {
+	  local host = ngx.var.host
+	  if string.match(host, "^stage[%w%-]*%.") then
+	    ngx.var.auto_load_balance_target = "pressagility_primary_server"
+	  end
+	}
+  
   
   location /wp-admin/ {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://pressagility;
+    proxy_pass  http://$auto_load_balance_target;
     include     snippets/pressagility-proxy-pass.conf;
     
     
@@ -193,7 +201,7 @@ server {
   location / {
     include     snippets/limit-req-zone-ip.conf;
     
-    proxy_pass  http://pressagility;
+    proxy_pass  http://$auto_load_balance_target;
     include     snippets/pressagility-proxy-pass.conf;
     
     
@@ -242,7 +250,7 @@ server {
 
 
 ###
-# Generic CDN Server Config
+#CDN Server Config - Stage Branch
 ###
 server {
 
@@ -250,7 +258,165 @@ server {
   
 	listen 8080;
 	listen [::]:8080;
-  server_name ~^(?:stage-)?cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+  server_name ~^stage-cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+
+  
+  # Custom header with server IP address
+  add_header X-Wppa-Cdn-Origin $server_addr always;
+
+	root /var/www/PressAgility/stage-branch/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	
+	
+	#ADD CROS HEADERS HERE
+	add_header "Access-Control-Allow-Origin" "*" always;
+  
+  location /genimage/ {
+    root /var/www/;
+
+    # Try to serve the requested URI as a file, or fallback to index.php for all requests
+    try_files $uri $uri/ /genimage/index.php?$args;
+
+    # Make sure requests to /genimage/index.php are processed by PHP
+    location = /genimage/index.php {
+        include snippets/fastcgi-php.conf;
+        include snippets/default-php-version.conf;
+        fastcgi_param SCRIPT_FILENAME /var/www/genimage/index.php;
+
+    }
+  }
+
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
+	}
+	
+	location / {
+		try_files $uri $uri/;
+	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_pressagility")
+          else
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_pressagility {
+      proxy_pass http://pressagility;
+      include snippets/pressagility-proxy-pass.conf;
+  }
+	
+	
+}
+
+
+
+
+
+###
+#Default server configuration - Stage Branch
+###
+server {
+
+  access_log /dev/null; #disable access logs
+  
+  listen 8080;
+  listen [::]:8080;
+  server_name ~^stage.*$;
+  
+  # Custom header with server IP address
+  add_header X-Wppa-Origin $server_addr always;
+ 
+
+	root /var/www/PressAgility/stage-branch/;
+	include snippets/global-restrictions.conf;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
+  
+
+	location /wp-content/ {
+		alias /mnt/network-share/wp-content/;
+    error_page 404 = @retry;
+	}
+	
+	location / {
+    try_files $uri $uri/ /index.php?$args;
+  }
+	
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		include snippets/default-php-version.conf;
+	}
+  
+  
+  location @retry {
+      internal;
+
+      rewrite_by_lua_block {
+          local max_retries = 3
+          local delay = 2
+          local client_ip = ngx.var.remote_addr
+          local retry_key = "retry:" .. client_ip
+
+          local retries = ngx.shared.retry_zone:get(retry_key) or 0
+
+          if retries < max_retries then
+              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
+              ngx.sleep(delay)
+              ngx.exec("@retry_pressagility")
+          else
+              ngx.shared.retry_zone:delete(retry_key)
+              ngx.exit(404)
+          end
+      }
+  }
+
+  location @retry_pressagility {
+      proxy_pass http://pressagility;
+      include snippets/pressagility-proxy-pass.conf;
+  }
+  
+}
+
+
+
+
+
+
+###
+#CDN Server Config - Main Branch
+###
+server {
+
+  access_log /dev/null;
+  
+	listen 8080;
+	listen [::]:8080;
+  server_name ~^cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
 
   
   # Custom header with server IP address
@@ -326,83 +492,24 @@ server {
 
 
 
-###
-# Default server configuration - Stage Branch
-###
-server {
-
-  access_log /dev/null; #disable access logs
-  
-  listen 8080;
-  listen [::]:8080;
-  server_name ~^stage.*$;
-  
-  # Custom header with server IP address
-  add_header X-Wppa-Origin $server_addr always;
- 
-
-	root /var/www/PressAgility/stage-branch/;
-	include snippets/global-restrictions.conf;
-
-	# Add index.php to the list if you are using PHP
-	index index.php index.html index.htm index.nginx-debian.html;
-  
-
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
-    error_page 404 = @retry;
-	}
-	
-	location / {
-		try_files $uri $uri/ /index.php?$args;
-	}
-
-	# pass PHP scripts to FastCGI server
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		include snippets/default-php-version.conf;
-	}
-  
-  
-  location @retry {
-      internal;
-
-      rewrite_by_lua_block {
-          local max_retries = 3
-          local delay = 2
-          local client_ip = ngx.var.remote_addr
-          local retry_key = "retry:" .. client_ip
-
-          local retries = ngx.shared.retry_zone:get(retry_key) or 0
-
-          if retries < max_retries then
-              ngx.shared.retry_zone:incr(retry_key, 1, 0, 60)  -- Key expires in 60 seconds
-              ngx.sleep(delay)
-              ngx.exec("@retry_pressagility")
-          else
-              ngx.shared.retry_zone:delete(retry_key)
-              ngx.exit(404)
-          end
-      }
-  }
-
-  location @retry_pressagility {
-      proxy_pass http://pressagility;
-      include snippets/pressagility-proxy-pass.conf;
-  }
-  
-}
-
-
-
-
-
 
 
 ###
-# Default server configuration - Main Branch
+#Default server configuration - Main Branch
 ###
 server {
+
+  set $if_static_sites @static_try_files;
+
+	access_by_lua_block {
+		local ck = ngx.var.http_cookie or ""
+		local host = ngx.var.host
+		local expected_val = host .. "XdS944jr"
+		local val = string.match(ck, "WPPA%-PressAgility%-Login=([^;]+)")
+		if val and val == expected_val then
+			ngx.var.if_static_sites = "@default_try_files"
+		end
+	}
 
   access_log /dev/null; #disable access logs
   
@@ -420,15 +527,39 @@ server {
 	# Add index.php to the list if you are using PHP
 	index index.php index.html index.htm index.nginx-debian.html;
   
+  #redirect every /foo uri to /foo/
+  #location ~ ^/[^.]+[^/]$ {
+  #  return 301 $uri/;
+  #}
 
 	location /wp-content/ {
 		alias /mnt/network-share/wp-content/;
     error_page 404 = @retry;
 	}
+  
 	
 	location / {
-		try_files $uri $uri/ /index.php?$args;
-	}
+    try_files $uri $if_static_sites;
+  }
+  location @default_try_files {
+    try_files /static-sites/$host$uri $uri $uri/ /index.php?$args;
+  }
+  location @static_try_files {
+	
+		add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+    add_header Pragma "no-cache";
+    add_header Expires 0;
+    add_header X-Cache-Bypass "true";
+    etag off;
+    if_modified_since off;
+		
+    try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html $uri $uri/ /index.php?$args;
+  }
+  
+  
+  
+  
+    
 
 	# pass PHP scripts to FastCGI server
 	location ~ \.php$ {
