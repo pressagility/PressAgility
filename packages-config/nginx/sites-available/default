@@ -29,7 +29,6 @@ upstream pressagility_primary_server {
 
 server {
 
-  access_log /var/log/nginx/access.log withhost;
   set $auto_load_balance_target "pressagility";
 
   
@@ -215,12 +214,12 @@ server {
   #block reques to /xmlrpc.php 
   location = /xmlrpc.php {
     deny all;
-    access_log off;
+    access_log off; #turn off logs
   }
  
   #do not log requests for the following urls:
   location = /favicon.ico {
-    access_log off;
+    access_log off; #turn off logs
   }
   
 }
@@ -232,7 +231,9 @@ server {
 #redirect www to www.domain.com
 ###
 server {
-  access_log /dev/null;
+
+  access_log off; #turn off logs
+  
   listen 8080;
   listen [::]:8080;
 
@@ -254,7 +255,7 @@ server {
 ###
 server {
 
-  access_log /dev/null;
+  access_log off; #turn off logs
   
 	listen 8080;
 	listen [::]:8080;
@@ -339,7 +340,7 @@ server {
 ###
 server {
 
-  access_log /dev/null; #disable access logs
+  access_log off; #turn off logs
   
   listen 8080;
   listen [::]:8080;
@@ -412,7 +413,7 @@ server {
 ###
 server {
 
-  access_log /dev/null;
+  access_log off; #turn off logs
   
 	listen 8080;
 	listen [::]:8080;
@@ -499,6 +500,8 @@ server {
 ###
 server {
 
+  access_log off; #turn off logs
+
   set $if_static_sites @static_try_files;
 
 	access_by_lua_block {
@@ -510,8 +513,6 @@ server {
 			ngx.var.if_static_sites = "@default_try_files"
 		end
 	}
-
-  access_log /dev/null; #disable access logs
   
   listen 8080 default_server;
   listen [::]:8080 default_server;

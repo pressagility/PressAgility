@@ -96,12 +96,14 @@ define( 'AUTOMATIC_UPDATER_DISABLED', true ); //do not allow automatic updates
 define( 'WP_AUTO_UPDATE_CORE', false ); //do not allow core updates
 
 
+/*
 //Only allow plugins/themes install/update/delete on primary server.
 if( WPPA_CURRENT_DOMAIN == WPPA_PLATFORM_DOMAIN ){
   define( 'DISALLOW_FILE_MODS', false );
 }else{
-  define( 'DISALLOW_FILE_MODS', true );
+  define( 'DISALLOW_FILE_MODS', false );
 }
+*/
 
 
 

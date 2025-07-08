@@ -31,9 +31,13 @@ if( !defined('WPPA_CURRENT_USER_IS_SUPER_DUPER') ){
       
       define( 'WPPA_CURRENT_USER_IS_SUPER_DUPER', true );
       
+      //only superduper is allowed to install plugins/themes
+      define( 'DISALLOW_FILE_MODS', false );
+      
     }else{
       
       define( 'WPPA_CURRENT_USER_IS_SUPER_DUPER', false );
+      define( 'DISALLOW_FILE_MODS', true );
       
     }
 
@@ -72,6 +76,7 @@ add_filter( 'admin_email_check_interval', '__return_false' );
 ###
 //Optional plugin that can be commented out based on your network requirements.
 ###
+
 
 
 
