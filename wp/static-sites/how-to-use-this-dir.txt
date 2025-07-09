@@ -1,0 +1,28 @@
+## Selective Full Page Cache
+
+This feature allows you to serve fully cached static pages on specific routes of your website.
+
+For example, if your website is: https://abc.com/  
+and you want to serve a static version of the `/about-us` page:
+
+1. Create the following directory structure:
+
+   abc.com/about-us/
+
+2. Inside that directory, add a file named:
+
+   index.html
+
+The full path will be:
+
+   abc.com/about-us/index.html
+
+When a request is made to https://abc.com/about-us, this static file will be served directly — bypassing PHP or WordPress.
+
+---
+
+You can also use this feature to serve static files like:
+
+- robots.txt → abc.com/robots.txt
+- .well-known directory → abc.com/.well-known/
+- Any other static asset you want to serve directly
