@@ -38,7 +38,7 @@ $imageSrc = 'data: '.mime_content_type($imageFilepath).';base64,'.$imageData;
         </p>
         
         <p>
-          <small>Edit "site-not-found" directory in your "WPScalePRO" Git Repository to update this template.</small>
+          <small>Edit "/site-not-found/index.php" file in your "PressAgility" Git Main Branch to update this template.</small>
         </p>
 
       </div>
