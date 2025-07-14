@@ -291,10 +291,16 @@ server {
     }
   }
 
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
+	location ~ ^/wp-content/(.*)$ {
+    alias /mnt/network-share/wp-content/;
+    try_files /$1 /fallback-wpcontent/$1;
+  }
+
+  location /fallback-wpcontent/ {
+    alias /mnt/network-share-main/wp-content/;
+    try_files $uri =404;
     error_page 404 = @retry;
-	}
+  }
 	
 	location / {
 		try_files $uri $uri/;
@@ -357,10 +363,16 @@ server {
 	index index.php index.html index.htm index.nginx-debian.html;
   
 
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
+	location ~ ^/wp-content/(.*)$ {
+    alias /mnt/network-share/wp-content/;
+    try_files /$1 /fallback-wpcontent/$1;
+  }
+
+  location /fallback-wpcontent/ {
+    alias /mnt/network-share-main/wp-content/;
+    try_files $uri =404;
     error_page 404 = @retry;
-	}
+  }
 	
 	location / {
     try_files $uri $uri/ /index.php?$args;
@@ -449,10 +461,16 @@ server {
     }
   }
 
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
+	location ~ ^/wp-content/(.*)$ {
+    alias /mnt/network-share/wp-content/;
+    try_files /$1 /fallback-wpcontent/$1;
+  }
+
+  location /fallback-wpcontent/ {
+    alias /mnt/network-share-main/wp-content/;
+    try_files $uri =404;
     error_page 404 = @retry;
-	}
+  }
 	
 	location / {
 		try_files $uri $uri/;
@@ -533,10 +551,16 @@ server {
   #  return 301 $uri/;
   #}
 
-	location /wp-content/ {
-		alias /mnt/network-share/wp-content/;
+	location ~ ^/wp-content/(.*)$ {
+    alias /mnt/network-share/wp-content/;
+    try_files /$1 /fallback-wpcontent/$1;
+  }
+
+  location /fallback-wpcontent/ {
+    alias /mnt/network-share-main/wp-content/;
+    try_files $uri =404;
     error_page 404 = @retry;
-	}
+  }
   
 	
 	location / {

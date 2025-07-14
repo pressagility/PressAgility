@@ -47,8 +47,7 @@ define( 'AI1WM_PLUGIN_NAME', 'all-in-one-wp-migration' );
 // ================
 //wppa_patch start
 //define( 'AI1WM_STORAGE_PATH', AI1WM_PATH . DIRECTORY_SEPARATOR . 'storage' );
-//define( 'AI1WM_STORAGE_PATH', AI1WM_PATH . DIRECTORY_SEPARATOR . 'storage' );
-define( 'AI1WM_STORAGE_PATH', WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'ai1wm-storage' );
+define( 'AI1WM_STORAGE_PATH', '/mnt/network-share-main/wp-content/site'.WPPA_SITE_ID.'/ai1wm-storage' );
 //wppa_patch end
 
 // ==================
@@ -507,7 +506,12 @@ if ( ! defined( 'AI1WM_DEFAULT_BACKUPS_PATH' ) ) {
 // ================
 // = Backups Path =
 // ================
-define( 'AI1WM_BACKUPS_PATH', get_option( AI1WM_BACKUPS_PATH_OPTION, AI1WM_DEFAULT_BACKUPS_PATH ) );
+//wppa_patch start
+//define( 'AI1WM_BACKUPS_PATH', get_option( AI1WM_BACKUPS_PATH_OPTION, AI1WM_DEFAULT_BACKUPS_PATH ) );
+define( 'AI1WM_BACKUPS_PATH', '/mnt/network-share-main/wp-content/site'.WPPA_SITE_ID.'/ai1wm-backups' );
+//wppa_patch end
+
+
 
 // ==========================
 // = Storage index.php File =
