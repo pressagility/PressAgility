@@ -34,6 +34,9 @@ if( !defined('WPPA_CURRENT_USER_IS_SUPER_DUPER') ){
       //only superduper is allowed to install plugins/themes
       define( 'DISALLOW_FILE_MODS', false );
       
+      //only supduper is allowed to rollback plugins/themes
+      require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wp-rollback/wp-rollback.php' );
+      
     }else{
       
       define( 'WPPA_CURRENT_USER_IS_SUPER_DUPER', false );
@@ -212,15 +215,6 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wpp
 // #7 Git integration - critical plugin. Do not Remove or Comment out.*****
 ###
 require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wppa-magic-functions/wppa-git-cicd-magic-deploy.php' );
-
-
-
-###
-// #8 wp-rollback - critical plugin. Do not Remove or Comment out.*****
-###
-if( !WPPA_CURRENT_SITE_IS_STAGE && WPPA_CURRENT_DOMAIN == WPPA_PLATFORM_DOMAIN  ){
-  require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wp-rollback/wp-rollback.php' );
-}
 
 
 
