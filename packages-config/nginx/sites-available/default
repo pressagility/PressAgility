@@ -293,9 +293,16 @@ server {
 
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
-    try_files /$1 /fallback-wpcontent/$1;
+    try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
   }
-
+  
+  location /fallback-plugins-wpcontent/ {
+    alias /var/www/PressAgility/stage-branch/wp-content/;
+    try_files $uri =404;
+    error_page 404 = @retry;
+  }
+  
+  
   location /fallback-wpcontent/ {
     alias /mnt/network-share-main/wp-content/;
     try_files $uri =404;
@@ -365,15 +372,23 @@ server {
 
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
-    try_files /$1 /fallback-wpcontent/$1;
+    try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
   }
-
+  
+  location /fallback-plugins-wpcontent/ {
+    alias /var/www/PressAgility/stage-branch/wp-content/;
+    try_files $uri =404;
+    error_page 404 = @retry;
+  }
+  
+  
   location /fallback-wpcontent/ {
     alias /mnt/network-share-main/wp-content/;
     try_files $uri =404;
     error_page 404 = @retry;
   }
-	
+  
+  
 	location / {
     try_files $uri $uri/ /index.php?$args;
   }
@@ -463,9 +478,16 @@ server {
 
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
-    try_files /$1 /fallback-wpcontent/$1;
+    try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
   }
-
+  
+  location /fallback-plugins-wpcontent/ {
+    alias /var/www/PressAgility/main-branch/wp-content/;
+    try_files $uri =404;
+    error_page 404 = @retry;
+  }
+  
+  
   location /fallback-wpcontent/ {
     alias /mnt/network-share-main/wp-content/;
     try_files $uri =404;
@@ -553,9 +575,16 @@ server {
 
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
-    try_files /$1 /fallback-wpcontent/$1;
+    try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
   }
-
+  
+  location /fallback-plugins-wpcontent/ {
+    alias /var/www/PressAgility/main-branch/wp-content/;
+    try_files $uri =404;
+    error_page 404 = @retry;
+  }
+  
+  
   location /fallback-wpcontent/ {
     alias /mnt/network-share-main/wp-content/;
     try_files $uri =404;
