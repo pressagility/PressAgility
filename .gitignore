@@ -1,3 +1,11 @@
-desktop.ini
+# Ignore all contents of the .vscode directory...
+.vscode/*
 
+# ...but DON'T ignore the .gitkeep file.
+!/.vscode/.gitkeep
+
+
+.DS_Store
+*.code-workspace
+desktop.ini
 do-not-include
