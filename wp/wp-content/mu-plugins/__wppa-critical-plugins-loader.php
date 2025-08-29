@@ -253,15 +253,15 @@ if( defined('WPPA_DISABLE_IMAGE_SIZES') && WPPA_DISABLE_IMAGE_SIZES == true ){
   
   define( 'WPPA_VIRTUAL_IMAGES_SIZES', array(
       'v_60x60'=>array(  'name'=>'V 60x60',     'w'=>60,  'h'=>60,  'crop'=>true,   'q'=>60 ),
-      'v_100x100'=>array(  'name'=>'V 100x100',   'w'=>100, 'h'=>100, 'crop'=>true,   'q'=>60 ),
-      'v_200x200'=>array(  'name'=>'V 200x200',   'w'=>200, 'h'=>200, 'crop'=>false,  'q'=>60 ), //we can skip 150 as it will be created by default
-      'v_250x250'=>array(  'name'=>'V 250x250',   'w'=>250, 'h'=>250, 'crop'=>false,  'q'=>60 ),
-      'v_350x350'=>array(  'name'=>'V 350x350',   'w'=>350, 'h'=>350, 'crop'=>false,  'q'=>60 ), //we can skip 300 as it will be created by default
-      'v_400x400'=>array(  'name'=>'V 400x400',   'w'=>400, 'h'=>400, 'crop'=>false,  'q'=>70 ),
-      'v_450x450'=>array(  'name'=>'V 450x450',   'w'=>450, 'h'=>450, 'crop'=>false,  'q'=>70 ),
-      'v_500x500'=>array(  'name'=>'V 500x500',   'w'=>500, 'h'=>500, 'crop'=>false,  'q'=>70 ),
-      'v_550x550'=>array(  'name'=>'V 550x550',   'w'=>550, 'h'=>550, 'crop'=>false,  'q'=>70 ),
-      'v_60x600'=>array(  'name'=>'V 600x600',   'w'=>600, 'h'=>600, 'crop'=>false,  'q'=>70 ),
+      'v_100x100'=>array( 'name'=>'V 100x100',   'w'=>100, 'h'=>100, 'crop'=>true,   'q'=>60 ),
+      'v_200x200'=>array( 'name'=>'V 200x200',   'w'=>200, 'h'=>200, 'crop'=>false,  'q'=>60 ), //we can skip 150 as it will be created by default
+      'v_250x250'=>array( 'name'=>'V 250x250',   'w'=>250, 'h'=>250, 'crop'=>false,  'q'=>60 ),
+      'v_350x350'=>array( 'name'=>'V 350x350',   'w'=>350, 'h'=>350, 'crop'=>false,  'q'=>60 ), //we can skip 300 as it will be created by default
+      'v_400x400'=>array( 'name'=>'V 400x400',   'w'=>400, 'h'=>400, 'crop'=>false,  'q'=>70 ),
+      'v_450x450'=>array( 'name'=>'V 450x450',   'w'=>450, 'h'=>450, 'crop'=>false,  'q'=>70 ),
+      'v_500x500'=>array( 'name'=>'V 500x500',   'w'=>500, 'h'=>500, 'crop'=>false,  'q'=>70 ),
+      'v_550x550'=>array( 'name'=>'V 550x550',   'w'=>550, 'h'=>550, 'crop'=>false,  'q'=>70 ),
+      'v_600x600'=>array( 'name'=>'V 600x600',   'w'=>600, 'h'=>600, 'crop'=>false,  'q'=>70 ),
       'v_650x650'=>array( 'name'=>'V 650x650',   'w'=>650, 'h'=>650, 'crop'=>false,  'q'=>70 ),
       'v_700x700'=>array( 'name'=>'V 700x700',   'w'=>700, 'h'=>700, 'crop'=>false,  'q'=>75 ),
       'v_750x750'=>array( 'name'=>'V 750x750',   'w'=>750, 'h'=>750, 'crop'=>false,  'q'=>75 ),
