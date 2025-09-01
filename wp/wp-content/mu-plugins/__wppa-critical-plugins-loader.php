@@ -218,6 +218,14 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wpp
 
 
 
+###
+// #8 SVG Support - critical plugin. Do not Remove or Comment out.*****
+###
+#We need this plugin to upload SVG's to CloudFlare R2 or S3
+###
+require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/easy-svg/easy-svg.php' );
+
+
 
 
 ###
@@ -261,7 +269,7 @@ if( defined('WPPA_DISABLE_IMAGE_SIZES') && WPPA_DISABLE_IMAGE_SIZES == true ){
       'v_450x450'=>array(  'name'=>'V 450x450',   'w'=>450, 'h'=>450, 'crop'=>false,  'q'=>70 ),
       'v_500x500'=>array(  'name'=>'V 500x500',   'w'=>500, 'h'=>500, 'crop'=>false,  'q'=>70 ),
       'v_550x550'=>array(  'name'=>'V 550x550',   'w'=>550, 'h'=>550, 'crop'=>false,  'q'=>70 ),
-      'v_60x600'=>array(  'name'=>'V 600x600',   'w'=>600, 'h'=>600, 'crop'=>false,  'q'=>70 ),
+      'v_600x600'=>array(  'name'=>'V 600x600',   'w'=>600, 'h'=>600, 'crop'=>false,  'q'=>70 ),
       'v_650x650'=>array( 'name'=>'V 650x650',   'w'=>650, 'h'=>650, 'crop'=>false,  'q'=>70 ),
       'v_700x700'=>array( 'name'=>'V 700x700',   'w'=>700, 'h'=>700, 'crop'=>false,  'q'=>75 ),
       'v_750x750'=>array( 'name'=>'V 750x750',   'w'=>750, 'h'=>750, 'crop'=>false,  'q'=>75 ),
