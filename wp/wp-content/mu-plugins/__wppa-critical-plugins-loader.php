@@ -223,7 +223,14 @@ require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/wpp
 ###
 #We need this plugin to upload SVG's to CloudFlare R2 or S3
 ###
-require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/easy-svg/easy-svg.php' );
+// Check if the current request is from the Command Line Interface (CLI), like WP-CLI.
+if ( php_sapi_name() === 'cli' ) {
+  require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/easy-svg/easy-svg.php' );
+}else{
+  require_once( WPPA_MU_DIR_PATH.'/wp-content/mu-plugins/wppa-critical-plugins/svg-support/svg-support.php' );
+}
+
+
 
 
 
