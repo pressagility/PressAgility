@@ -28,7 +28,9 @@ function bodhi_svgs_admin_css() {
 		wp_enqueue_style( 'bodhi-svgs-admin-edit-post', BODHI_SVGS_PLUGIN_URL . 'css/svgs-admin-edit-post.css', array(), $svgs_plugin_version );
 	}
 }
-add_action( 'admin_enqueue_scripts', 'bodhi_svgs_admin_css' );
+//wppa_patch start
+//add_action( 'admin_enqueue_scripts', 'bodhi_svgs_admin_css' );
+//wppa_patch end
 
 /*
  * Enqueue multiselect for settings page only
