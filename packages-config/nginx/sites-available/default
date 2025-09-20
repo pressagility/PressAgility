@@ -218,9 +218,12 @@ server {
   }
  
   #do not log requests for the following urls:
-  location = /favicon.ico {
-    access_log off; #turn off logs
-  }
+  #location = /favicon.ico {
+  #  access_log off; #turn off logs 
+  #  # ADD THESE TWO LINES TO FORWARD THE REQUEST
+  #  proxy_pass http://$auto_load_balance_target;
+  #  include    snippets/pressagility-proxy-pass.conf;
+  #}
   
 }
 
@@ -259,7 +262,7 @@ server {
   
 	listen 8080;
 	listen [::]:8080;
-  server_name ~^stage-cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+  server_name ~^stage-cdn(?<site_num>[0-9]+).*-fc\.(?<domain>.*)$;
 
   
   # Custom header with server IP address
@@ -294,6 +297,11 @@ server {
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
     try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
+    
+    # Deny access to any PHP files within wp-content
+    location ~ \.php$ {
+        deny all;
+    }
   }
   
   location /fallback-plugins-wpcontent/ {
@@ -373,6 +381,11 @@ server {
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
     try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
+    
+    # Deny access to any PHP files within wp-content
+    location ~ \.php$ {
+        deny all;
+    }
   }
   
   location /fallback-plugins-wpcontent/ {
@@ -444,7 +457,7 @@ server {
   
 	listen 8080;
 	listen [::]:8080;
-  server_name ~^cdn(?<site_num>[0-9]+)-fc\.(?<domain>.*)$;
+  server_name ~^cdn(?<site_num>[0-9]+).*-fc\.(?<domain>.*)$;
 
   
   # Custom header with server IP address
@@ -479,6 +492,11 @@ server {
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
     try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
+    
+    # Deny access to any PHP files within wp-content
+    location ~ \.php$ {
+        deny all;
+    }
   }
   
   location /fallback-plugins-wpcontent/ {
@@ -548,9 +566,23 @@ server {
 		local ck = ngx.var.http_cookie or ""
 		local host = ngx.var.host
 		local expected_val = host .. "XdS944jr"
-		local val = string.match(ck, "WPPA%-PressAgility%-Login=([^;]+)")
-		if val and val == expected_val then
+    
+    local login_val     = string.match(ck, "WPPA%-PressAgility%-Login=([^;]+)")
+    local items_in_cart = string.match(ck, "woocommerce_items_in_cart")
+
+    -- query string check for wc-ajax=get_variation
+    local args = ngx.var.args or ""
+    local is_variation_ajax = string.match(args, "wc%-ajax=get_variation")
+    
+		if login_val and login_val == expected_val then
 			ngx.var.if_static_sites = "@default_try_files"
+      
+    elseif items_in_cart then
+      ngx.var.if_static_sites = "@default_try_files"
+    
+    elseif is_variation_ajax then
+      ngx.var.if_static_sites = "@default_try_files"
+      
 		end
 	}
   
@@ -576,6 +608,11 @@ server {
 	location ~ ^/wp-content/(.*)$ {
     alias /mnt/network-share/wp-content/;
     try_files /$1 /fallback-wpcontent/$1 /fallback-plugins-wpcontent/$1;
+    
+    # Deny access to any PHP files within wp-content
+    location ~ \.php$ {
+        deny all;
+    }
   }
   
   location /fallback-plugins-wpcontent/ {
@@ -607,7 +644,8 @@ server {
     etag off;
     if_modified_since off;
 		
-    try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html $uri $uri/ /index.php?$args;
+    #try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html $uri $uri/ /index.php?$args;
+    try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html /index.php?$args;
   }
   
   
