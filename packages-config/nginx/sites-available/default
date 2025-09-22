@@ -644,8 +644,7 @@ server {
     etag off;
     if_modified_since off;
 		
-    #try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html $uri $uri/ /index.php?$args;
-    try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html /index.php?$args;
+    try_files /static-sites/$host$uri /static-sites/$host$uri/index.html /static-sites/$host$uri.html $uri $uri/ /index.php?$args;
   }
   
   
