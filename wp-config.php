@@ -86,7 +86,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 
 
 //define custom constants
-define( 'DISABLE_WP_CRON', true ); //Keep it disabled in Auto Scaling Environment.
+define( 'DISABLE_WP_CRON', false ); //only set the value to true if you know what you are doing.
 define( 'FS_METHOD', WPPA_FS_METHOD ); //File System Write Method
 define( 'WP_CONTENT_DIR', WPPA_WP_CONTENT_DIR );
 define( 'WP_CONTENT_URL', 'https://'.WPPA_CURRENT_DOMAIN.'/wp-content/site'.WPPA_SITE_ID );
